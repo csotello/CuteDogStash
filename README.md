@@ -1,2 +1,1 @@
-# RustProject
-CS410: Rust Programming Course Project
+# CS410: Rust Programming Course Project
