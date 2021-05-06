@@ -2,7 +2,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 mod pages;
 mod routes;
-use crate::pages::Home;
+use crate::pages::{Home, Edit, Login, SignUp, Account};
 
 use crate::routes::Route;
 //Base App which controls routing
@@ -30,6 +30,18 @@ impl Component for App {
         let render = Router::render(move |switch: Route| match switch {
             Route::Home => {
                 html! {<Home />}
+            },
+            Route::Account => {
+                html! {<Account />}
+            },
+            Route::Login => {
+                html! {<Login />}
+            },
+            Route::SignUp => {
+                html! {<SignUp />}
+            }
+            Route::Edit => {
+                html! {<Edit />}
             }
         });
 

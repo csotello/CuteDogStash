@@ -1,3 +1,10 @@
 mod home;
-
+mod account;
+mod edit;
+mod signup;
+mod login;
 pub use home::Home;
+pub use account::Account;
+pub use edit::Edit;
+pub use login::Login;
+pub use signup::SignUp;
