@@ -1,0 +1,16 @@
+[package]
+name = "yew-app"
+version = "0.1.0"
+authors = ["Carlos Sotello"]
+edition = "2018"
+
+[dependencies]
+yew = "0.17"
+yew-router = "0.14.0"
+rand = { version = "0.7.3", features = ["wasm-bindgen"] }
+bcrypt = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+
+[lib]
+name = "db"
+path = "src/db.rs"
