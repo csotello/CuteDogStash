@@ -1,5 +1,8 @@
 #![recursion_limit = "256"]
+use yew::format::Json;
 use yew::prelude::*;
+use yew::services::storage::Area;
+use yew::services::StorageService;
 use yew_router::prelude::*;
 mod utils;
 use utils::*;
@@ -10,7 +13,7 @@ use crate::pages::{Account, Edit, Home, Login, SignUp};
 use crate::routes::Routes;
 use components::*;
 use db::*;
-
+const KEY: &'static str = "CuteDogStash_KEY";
 pub enum Msg {
     SignUp(String, String),
     SetRoute(Route),
@@ -23,7 +26,8 @@ struct App {
     db: Data,           //Database
     user: Option<User>, //Current user
     error: bool,
-    route: Option<Routes>,                     //Current Route
+    storage: StorageService, //StorageService to persist in localstorage
+    route: Option<Routes>,   //Current Route
     router_agent: Box<dyn Bridge<RouteAgent>>, //RouterAgent to switch routes
 }
 
@@ -35,12 +39,16 @@ impl Component for App {
         let router_agent = RouteAgent::bridge(link.callback(Msg::SetRoute));
         let route_service: RouteService = RouteService::new();
         let route = route_service.get_route();
+        let storage = StorageService::new(Area::Local).unwrap();
+        let Json(data) = storage.restore(KEY);
+        let db = data.unwrap_or_else(|_| Data::default());
         Self {
             link,
-            db: Data::default(),
+            db: db,
             user: None,
             error: false,
             route: Routes::switch(route),
+            storage,
             router_agent,
         }
     }
@@ -48,19 +56,14 @@ impl Component for App {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::SignUp(username, password) => {
-                log("Creating Account:".to_string());
-                log(format!("username:{}", username.clone()));
-                log(format!("password:{}", password.clone()));
                 self.db.create_user(username, password);
+                self.storage.store(KEY, Json(&self.db));
             }
             Msg::SetRoute(route) => {
                 self.route = Routes::switch(route);
             }
             Msg::Login(username, password) => match self.db.login(username, password) {
                 Some(user) => {
-                    log("Found Account:".to_string());
-                    log(format!("username:{}", user.username.clone()));
-                    log(format!("password:{}", user.password.clone()));
                     self.user = Some(user);
                     self.error = false;
                 }
