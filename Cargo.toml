@@ -1,5 +1,5 @@
 [package]
-name = "yew-app"
+name = "RustProject"
 version = "0.1.0"
 authors = ["Carlos Sotello"]
 edition = "2018"
