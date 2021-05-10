@@ -710,6 +710,7 @@ dependencies = [
  "bcrypt",
  "rand",
  "serde",
+ "wasm-bindgen",
  "yew",
  "yew-router",
 ]

@@ -1,7 +1,6 @@
 use yew::prelude::*;
 
-pub enum Msg {
-}
+pub enum Msg {}
 
 pub struct Account {
     // `ComponentLink` is like a reference to a component.

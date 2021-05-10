@@ -6,40 +6,40 @@ use serde::{Deserialize, Serialize};
 pub struct User {
     id: u64,
     pub username: String,
-    password: String,
+    pub password: String,
 }
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Rating {
     id: u64,
     post_id: u64,
     pub author: String,
-    stars: u8,
+    pub stars: u8,
     pub comment: String,
 }
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Post {
     id: u64,
     pub author: String,
-    ratings: Vec<Rating>,
+    pub ratings: Vec<Rating>,
     pub description: String,
-    image: Vec<u8>,
+    pub image: Vec<u8>,
 }
 #[derive(Clone, Deserialize, Serialize)]
-pub struct DB {
+pub struct Data {
     pub users: Vec<User>,
     pub posts: Vec<Post>,
     pub ratings: Vec<Rating>,
 }
-impl Default for DB {
-    fn default() -> DB {
-        DB {
+impl Default for Data {
+    fn default() -> Data {
+        Data {
             users: Vec::new(),
             posts: Vec::new(),
             ratings: Vec::new(),
         }
     }
 }
-impl DB {
+impl Data {
     pub fn create_post(&mut self, author: String, description: String, image: Vec<u8>) {
         let id = random::<u64>();
         let post = Post {
@@ -58,6 +58,14 @@ impl DB {
             id,
             username,
             password: hash,
-        })
+        });
+    }
+    pub fn login(&self, username: String, password: String) -> Option<User> {
+        for user in self.users.iter() {
+            if user.username == username && user.password == password {
+                return Some(user.clone());
+            }
+        }
+        None
     }
 }
