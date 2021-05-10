@@ -1,4 +1,4 @@
-#![recursion_limit="256"]
+#![recursion_limit = "256"]
 use yew::prelude::*;
 use yew_router::prelude::*;
 mod utils;
@@ -11,11 +11,11 @@ use crate::routes::Routes;
 use components::*;
 use db::*;
 
-
 pub enum Msg {
     SignUp(String, String),
-    ChangeRoute(Route),
+    SetRoute(Route),
     Login(String, String),
+    Logout,
 }
 //Base App which controls routing
 struct App {
@@ -32,7 +32,7 @@ impl Component for App {
     type Properties = ();
 
     fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let router_agent = RouteAgent::bridge(link.callback(Msg::ChangeRoute));
+        let router_agent = RouteAgent::bridge(link.callback(Msg::SetRoute));
         let route_service: RouteService = RouteService::new();
         let route = route_service.get_route();
         Self {
@@ -53,7 +53,7 @@ impl Component for App {
                 log(format!("password:{}", password.clone()));
                 self.db.create_user(username, password);
             }
-            Msg::ChangeRoute(route) => {
+            Msg::SetRoute(route) => {
                 self.route = Routes::switch(route);
             }
             Msg::Login(username, password) => match self.db.login(username, password) {
@@ -68,6 +68,9 @@ impl Component for App {
                     self.error = true;
                 }
             },
+            Msg::Logout => {
+                self.user = None;
+            }
         }
         true
     }
@@ -84,9 +87,10 @@ impl Component for App {
         let login = self
             .link
             .callback(|(username, password)| Msg::Login(username, password));
+        let logout = self.link.callback(|_| Msg::Logout);
         html! {
             <>
-                <Navbar user=&self.user/>
+                <Navbar user=&self.user logout=logout/>
                 {
                     if let Some(route) = &self.route{
                         match route {

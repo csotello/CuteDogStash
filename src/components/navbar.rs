@@ -2,11 +2,14 @@ use crate::routes::Routes;
 use db::User;
 use yew::prelude::*;
 use yew_router::prelude::*;
-pub enum Msg {}
+pub enum Msg {
+    Logout,
+}
 
 #[derive(Properties, Clone)]
 pub struct Props {
     pub user: Option<User>,
+    pub logout: Callback<()>,
 }
 
 pub struct Navbar {
@@ -25,6 +28,11 @@ impl Component for Navbar {
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Msg::Logout => {
+                self.props.logout.emit(());
+            }
+        }
         true
     }
 
@@ -71,6 +79,10 @@ impl Navbar {
         }
     }
     fn user_links(&self) -> Html {
+        let logout = self.link.callback(move |e: MouseEvent| {
+            e.prevent_default();
+            Msg::Logout
+        });
         html! {
             <ul>
             <li>
@@ -83,6 +95,7 @@ impl Navbar {
                 { "Account" }
             </RouterAnchor<Routes>>
             </li>
+            <li><a onclick=logout >{"Logout"}</a></li>
         </ul>
         }
     }
