@@ -6,6 +6,7 @@ use yew_router::prelude::RouteAgent;
 pub enum Msg {
     SetUsername(String),
     SetPassword(String),
+    InvalidInput,
     None,
     Submit,
 }
@@ -59,6 +60,9 @@ impl Component for SignUp {
                     self.error = true;
                 }
             }
+            Msg::InvalidInput => {
+                self.error = true;
+            }
             _ => {}
         }
         true
@@ -80,18 +84,20 @@ impl Component for SignUp {
             event.prevent_default();
             Msg::Submit
         });
+        let oninvalid = self.link.callback(|_| Msg::InvalidInput);
         html! {
             <>
-                {if self.error {html!{<p>{"Invalid username or password"}</p>}} else {html!{}}}
+                {if self.error {html!{<p>{"Invalid username or password\nUsername cannot contain special characters"}</p>}} else {html!{}}}
                 <form onsubmit=onsubmit>
                     <fieldset>
                     <label>{"Username:"}</label>
-                    <input type="text" pattern="[A-Za-z0-9]{1,10}"
-                        value=&self.username
-                        oninput=update_username/>
+                    <input type="text" pattern="[A-Za-z0-9]{1,20}"
+                        value=&self.username required=true
+                        oninput=update_username
+                        oninvalid=oninvalid/>
                     <label>{"Password:"}</label>
                     <input type="password"
-                        value=&self.password
+                        value=&self.password required=true
                         oninput=update_password/>
                     <button type="submit">{"SignUp"}</button>
                     </fieldset>
