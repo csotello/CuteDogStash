@@ -15,6 +15,7 @@ pub struct SignUp {
     // It can be used to send messages to the component
     password: String,
     username: String,
+    error: bool,
     router_agent: Box<dyn Bridge<RouteAgent>>,
     link: ComponentLink<Self>,
     props: Props,
@@ -22,6 +23,7 @@ pub struct SignUp {
 #[derive(Properties, Clone)]
 pub struct Props {
     pub callback: Callback<(String, String)>,
+    pub db: Data,
 }
 
 impl Component for SignUp {
@@ -32,6 +34,7 @@ impl Component for SignUp {
         SignUp {
             password: String::new(),
             username: String::new(),
+            error: false,
             router_agent: RouteAgent::bridge(link.callback(|_| Msg::None)),
             link,
             props,
@@ -47,10 +50,14 @@ impl Component for SignUp {
                 self.password = password;
             }
             Msg::Submit => {
-                self.props
-                    .callback
-                    .emit((self.username.clone(), self.password.clone()));
-                self.router_agent.send(ChangeRoute(Routes::Home.into()));
+                if self.props.db.check_username(self.username.clone()) {
+                    self.props
+                        .callback
+                        .emit((self.username.clone(), self.password.clone()));
+                    self.router_agent.send(ChangeRoute(Routes::Home.into()));
+                } else {
+                    self.error = true;
+                }
             }
             _ => {}
         }
@@ -75,6 +82,7 @@ impl Component for SignUp {
         });
         html! {
             <>
+                {if self.error {html!{<p>{"Invalid username or password"}</p>}} else {html!{}}}
                 <form onsubmit=onsubmit>
                     <fieldset>
                     <label>{"Username:"}</label>

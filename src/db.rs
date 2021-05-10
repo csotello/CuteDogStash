@@ -54,10 +54,10 @@ impl Data {
     pub fn check_username(&self, username: String) -> bool {
         for user in self.users.iter() {
             if user.username == username {
-                return true;
+                return false;
             }
         }
-        false
+        true
     }
     pub fn create_user(&mut self, username: String, password: String) {
         let id = random::<u64>();

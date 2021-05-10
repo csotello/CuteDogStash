@@ -100,7 +100,7 @@ impl Component for App {
                             Routes::Home =>  html! {<Home error=&self.error db=&self.db/>},
                             Routes::Account => html! {<Account />},
                             Routes::Login => html! {<Login callback=login/>},
-                            Routes::SignUp => html! {<SignUp callback=signup/>},
+                            Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},
                             Routes::Edit => html! {<Edit />}
                         }
                     }
