@@ -74,7 +74,7 @@ impl Component for Login {
                 <form onsubmit=onsubmit>
                     <fieldset>
                         <label>{"Username:"}</label>
-                        <input type="text" pattern="[A-Za-z0-9]*"
+                        <input type="text" pattern="[A-Za-z0-9]{1,10}"
                             value=&self.username
                             oninput=update_username/>
                         <label>{"Password:"}</label>

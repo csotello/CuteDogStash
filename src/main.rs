@@ -1,12 +1,16 @@
+#![recursion_limit="256"]
 use yew::prelude::*;
 use yew_router::prelude::*;
 mod utils;
 use utils::*;
+mod components;
 mod pages;
 mod routes;
 use crate::pages::{Account, Edit, Home, Login, SignUp};
 use crate::routes::Routes;
+use components::*;
 use db::*;
+
 
 pub enum Msg {
     SignUp(String, String),
@@ -45,25 +49,25 @@ impl Component for App {
         match msg {
             Msg::SignUp(username, password) => {
                 log("Creating Account:".to_string());
-                log(format!("username:{}",username.clone()));
-                log(format!("password:{}",password.clone()));                
+                log(format!("username:{}", username.clone()));
+                log(format!("password:{}", password.clone()));
                 self.db.create_user(username, password);
             }
             Msg::ChangeRoute(route) => {
                 self.route = Routes::switch(route);
             }
-            Msg::Login(username, password) => {
-                match self.db.login(username, password) {
-                    Some(user) => { 
-                        log("Found Account:".to_string());
-                        log(format!("username:{}",user.username.clone()));
-                        log(format!("password:{}",user.password.clone()));
-                        self.user = Some(user);
-                        self.error = false;
-                    }
-                    None => {self.error = true;}
+            Msg::Login(username, password) => match self.db.login(username, password) {
+                Some(user) => {
+                    log("Found Account:".to_string());
+                    log(format!("username:{}", user.username.clone()));
+                    log(format!("password:{}", user.password.clone()));
+                    self.user = Some(user);
+                    self.error = false;
                 }
-            }
+                None => {
+                    self.error = true;
+                }
+            },
         }
         true
     }
@@ -82,10 +86,11 @@ impl Component for App {
             .callback(|(username, password)| Msg::Login(username, password));
         html! {
             <>
+                <Navbar user=&self.user/>
                 {
                     if let Some(route) = &self.route{
                         match route {
-                            Routes::Home =>  html! {<Home error=&self.error/>},
+                            Routes::Home =>  html! {<Home error=&self.error db=&self.db/>},
                             Routes::Account => html! {<Account />},
                             Routes::Login => html! {<Login callback=login/>},
                             Routes::SignUp => html! {<SignUp callback=signup/>},

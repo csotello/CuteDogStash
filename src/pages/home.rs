@@ -1,5 +1,5 @@
+use db::*;
 use yew::prelude::*;
-
 pub enum Msg {
     AddOne,
 }
@@ -7,6 +7,7 @@ pub enum Msg {
 #[derive(Properties, Clone)]
 pub struct Props {
     pub error: bool,
+    pub db: Data,
 }
 
 pub struct Home {
@@ -36,18 +37,10 @@ impl Component for Home {
     }
 
     fn view(&self) -> Html {
-        html! {
-            <>
-                {
-                    if self.props.error {
-                        html! {<p>{"Error"}</p>}
-                    }
-                    else {
-                        html! {}
-                    }
-                }
-                <p>{"Home"}</p>
-            </>
+        if self.props.error {
+            html! {<p>{"Error"}</p>}
+        } else {
+            html! { <p>{"Home"}</p>}
         }
     }
 }

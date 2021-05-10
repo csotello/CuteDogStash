@@ -1,6 +1,8 @@
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::{hash, verify};
 use rand::random;
 use serde::{Deserialize, Serialize};
+// mod utils;
+// use utils::*;
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct User {
@@ -53,7 +55,7 @@ impl Data {
     }
     pub fn create_user(&mut self, username: String, password: String) {
         let id = random::<u64>();
-        let hash = hash(password, DEFAULT_COST).unwrap();
+        let hash = hash(password, 4).unwrap();
         self.users.push(User {
             id,
             username,
@@ -62,7 +64,7 @@ impl Data {
     }
     pub fn login(&self, username: String, password: String) -> Option<User> {
         for user in self.users.iter() {
-            if user.username == username && user.password == password {
+            if user.username == username && verify(password.clone(), &user.password).unwrap() {
                 return Some(user.clone());
             }
         }
