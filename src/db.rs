@@ -1,8 +1,6 @@
 use bcrypt::{hash, verify};
 use rand::random;
 use serde::{Deserialize, Serialize};
-// mod utils;
-// use utils::*;
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct User {
@@ -52,6 +50,14 @@ impl Data {
             ratings: vec![],
         };
         self.posts.push(post);
+    }
+    pub fn check_username(&self, username: String) -> bool {
+        for user in self.users.iter() {
+            if user.username == username {
+                return true;
+            }
+        }
+        false
     }
     pub fn create_user(&mut self, username: String, password: String) {
         let id = random::<u64>();
