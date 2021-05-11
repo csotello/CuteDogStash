@@ -64,7 +64,11 @@ impl Component for App {
             }
             Msg::Login(username, password) => match self.db.login(username, password) {
                 Some(user) => {
-                    self.user = Some(User{id: user.id, username: user.username, password:"".to_string()});
+                    self.user = Some(User {
+                        id: user.id,
+                        username: user.username,
+                        password: "".to_string(),
+                    });
                     self.error = false;
                 }
                 None => {
@@ -101,7 +105,8 @@ impl Component for App {
                             Routes::Account => html! {<Account />},
                             Routes::Login => html! {<Login callback=login/>},
                             Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},
-                            Routes::Edit => html! {<Edit />}
+                            Routes::Edit => html! {<Edit />},
+                            Routes::Post => html! {<Post />},
                         }
                     }
                     else{
