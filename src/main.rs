@@ -1,4 +1,4 @@
-#![recursion_limit = "256"]
+#![recursion_limit = "256"] //Increase limit for rendering pages
 use yew::format::Json;
 use yew::prelude::*;
 use yew::services::storage::Area;
@@ -64,7 +64,7 @@ impl Component for App {
             }
             Msg::Login(username, password) => match self.db.login(username, password) {
                 Some(user) => {
-                    self.user = Some(user);
+                    self.user = Some(User{id: user.id, username: user.username, password:"".to_string()});
                     self.error = false;
                 }
                 None => {

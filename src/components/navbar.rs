@@ -85,17 +85,19 @@ impl Navbar {
         });
         html! {
             <ul>
-            <li>
-            <RouterAnchor<Routes> route=Routes::Home>
-                { "Home" }
-            </RouterAnchor<Routes>>
-            </li>
-            <li>
-            <RouterAnchor<Routes> route=Routes::Account>
-                { "Account" }
-            </RouterAnchor<Routes>>
-            </li>
-            <li><a onclick=logout >{"Logout"}</a></li>
+                <li>
+                    <RouterAnchor<Routes> route=Routes::Home>
+                    { "Home" }
+                    </RouterAnchor<Routes>>
+                </li>
+                <li>
+                    <RouterAnchor<Routes> route=Routes::Account>
+                    { "Account" }
+                    </RouterAnchor<Routes>>
+                </li>
+                <li>
+                    <a onclick=logout >{"Logout"}</a>
+                </li>
         </ul>
         }
     }

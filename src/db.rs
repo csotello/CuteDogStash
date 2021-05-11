@@ -4,21 +4,21 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct User {
-    id: u64,
+    pub id: u64,
     pub username: String,
     pub password: String,
 }
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Rating {
-    id: u64,
-    post_id: u64,
+    pub id: u64,
+    pub post_id: u64,
     pub author: String,
     pub stars: u8,
     pub comment: String,
 }
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Post {
-    id: u64,
+    pub id: u64,
     pub author: String,
     pub ratings: Vec<Rating>,
     pub description: String,

@@ -76,10 +76,12 @@ impl Component for Login {
                         <label>{"Username:"}</label>
                         <input type="text" pattern="[A-Za-z0-9]{1,10}"
                             value=&self.username
+                            required=true
                             oninput=update_username/>
                         <label>{"Password:"}</label>
                         <input type="password"
                             value=&self.password
+                            required=true
                             oninput=update_password/>
                         <button type="submit">{"Login"}</button>
                     </fieldset>
