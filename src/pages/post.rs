@@ -66,22 +66,19 @@ impl Component for Post {
             Msg::ResetFile => {
                 self.file = "".to_string();
             }
-            Msg::Submit => {
-                match &self.props.user {
-                    Some(user) => {
-                        self.props.callback.emit((
-                            user.username.clone(),
-                            self.description.clone(),
-                            self.file.clone(),
-                        ));
-                        self.router_agent.send(ChangeRoute(Routes::Home.into()));
-                    }
-                    None => {
-                        log("User not logged in".to_string());
-                    }
+            Msg::Submit => match &self.props.user {
+                Some(user) => {
+                    self.props.callback.emit((
+                        user.username.clone(),
+                        self.description.clone(),
+                        self.file.clone(),
+                    ));
+                    self.router_agent.send(ChangeRoute(Routes::Home.into()));
                 }
-                // self.props.callback.emit((&self.props.user.username, &self.description, &self.file));
-            }
+                None => {
+                    log("User not logged in".to_string());
+                }
+            },
             Msg::None => {}
         }
         true
@@ -109,6 +106,7 @@ impl Component for Post {
                     <form onsubmit=onsubmit>
                         <fieldset>
                             <label>{"Picture:"}</label>
+                            <img src="data:image/*;base64, ".to_string() + &self.file alt=""/>
                             <input type="file" accept="image/*" onchange=self.link.callback(move |data: ChangeData| {
                                 match data {
                                     ChangeData::Files(files) => {
@@ -118,14 +116,17 @@ impl Component for Post {
                                 }
                             }) />
                             <label>{"Description:"}</label>
-                            <input type="text" pattern="[A-Za-z0-9]*"
+                            <input type="textare"
+                                rows=4
+                                cols=4
+                                pattern="[A-Za-z0-9!@#$%^&*(){}/|:;-_<>.,=+]*"
                                 value=&self.description
                                 required=true
                                 oninput=update_description/>
                             <button type="submit">{"Post"}</button>
                         </fieldset>
                     </form>
-                    <img src="data:image/*;base64, ".to_string() + &self.file alt="pic"/>
+                    // <img src="data:image/*;base64, ".to_string() + &self.file alt="pic"/>
                 </>
             }
         }

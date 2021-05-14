@@ -34,11 +34,11 @@ impl Component for Post {
     }
 
     fn view(&self) -> Html {
-        html!{
+        html! {
             <>
-                <span>{"Author:"}{&self.props.post.author}</span>
-                <img src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/>
-                <p>{&self.props.post.description}</p>
+                <span>{"Author:"}{&self.props.post.author}</span><br/>
+                <img src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
+                <p>{"Description:"}{&self.props.post.description}</p>
             </>
         }
     }

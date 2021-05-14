@@ -1,6 +1,6 @@
+use crate::components::Post;
 use db::*;
 use yew::prelude::*;
-use crate::components::Post;
 pub enum Msg {}
 
 #[derive(Properties, Clone)]
@@ -36,13 +36,15 @@ impl Component for Home {
     }
 
     fn view(&self) -> Html {
-        let map_post = |post: &db::Post| html!{
-            <Post post=post/>
+        let map_post = |post: &db::Post| {
+            html! {
+                <Post post=post/>
+            }
         };
         if self.props.error {
             html! {<p>{"Error"}</p>}
         } else {
-            html!{
+            html! {
                 {for self.props.db.posts.iter().map(map_post)}
             }
         }
