@@ -1,21 +1,35 @@
+use crate::routes::Routes;
+use crate::utils::*;
 use db::*;
+use yew::events::ChangeData;
 use yew::prelude::*;
+use yew::services::reader::{File, FileData, ReaderService, ReaderTask};
+use yew_router::agent::RouteRequest::ChangeRoute;
+use yew_router::prelude::RouteAgent;
+extern crate base64;
 pub enum Msg {
     SetDescription(String),
+    SetFile(FileData),
+    LoadFile(File),
+    ResetFile,
     Submit,
+    None,
 }
 
 #[derive(Properties, Clone)]
 pub struct Props {
-    pub error: bool,
     pub db: Data,
+    pub callback: Callback<(String, String, String)>,
+    pub user: Option<User>,
 }
 
 pub struct Post {
-    // `ComponentLink` is like a reference to a component.
-    // It can be used to send messages to the component
+    router_agent: Box<dyn Bridge<RouteAgent>>,
     link: ComponentLink<Self>,
     description: String,
+    file: String,
+    task: Vec<ReaderTask>,
+    error: bool,
     props: Props,
 }
 
@@ -25,8 +39,12 @@ impl Component for Post {
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
+            router_agent: RouteAgent::bridge(link.callback(|_| Msg::None)),
             link,
             description: String::new(),
+            file: String::new(),
+            task: Vec::new(),
+            error: false,
             props,
         }
     }
@@ -36,7 +54,35 @@ impl Component for Post {
             Msg::SetDescription(description) => {
                 self.description = description;
             }
-            Msg::Submit => {}
+            Msg::SetFile(file) => {
+                self.file = base64::encode(file.content);
+            }
+            Msg::LoadFile(file) => {
+                let callback = self.link.callback(Msg::SetFile);
+                let mut reader = ReaderService::new();
+                let task = reader.read_file(file, callback).unwrap();
+                self.task.push(task);
+            }
+            Msg::ResetFile => {
+                self.file = "".to_string();
+            }
+            Msg::Submit => {
+                match &self.props.user {
+                    Some(user) => {
+                        self.props.callback.emit((
+                            user.username.clone(),
+                            self.description.clone(),
+                            self.file.clone(),
+                        ));
+                        self.router_agent.send(ChangeRoute(Routes::Home.into()));
+                    }
+                    None => {
+                        log("User not logged in".to_string());
+                    }
+                }
+                // self.props.callback.emit((&self.props.user.username, &self.description, &self.file));
+            }
+            Msg::None => {}
         }
         true
     }
@@ -50,8 +96,11 @@ impl Component for Post {
         let update_description = self
             .link
             .callback(|e: InputData| Msg::SetDescription(e.value));
-        let onsubmit = self.link.callback(|_| Msg::Submit);
-        if self.props.error {
+        let onsubmit = self.link.callback(|e: FocusEvent| {
+            e.prevent_default();
+            Msg::Submit
+        });
+        if self.error {
             html! {<p>{"Error"}</p>}
         } else {
             html! {
@@ -59,14 +108,24 @@ impl Component for Post {
                     <p>{"Create Post"}</p>
                     <form onsubmit=onsubmit>
                         <fieldset>
+                            <label>{"Picture:"}</label>
+                            <input type="file" accept="image/*" onchange=self.link.callback(move |data: ChangeData| {
+                                match data {
+                                    ChangeData::Files(files) => {
+                                        Msg::LoadFile(files.get(0).unwrap())
+                                    }
+                                    _ => Msg::ResetFile
+                                }
+                            }) />
                             <label>{"Description:"}</label>
                             <input type="text" pattern="[A-Za-z0-9]*"
                                 value=&self.description
                                 required=true
                                 oninput=update_description/>
                             <button type="submit">{"Post"}</button>
-                    </fieldset>
-                </form>
+                        </fieldset>
+                    </form>
+                    <img src="data:image/*;base64, ".to_string() + &self.file alt="pic"/>
                 </>
             }
         }

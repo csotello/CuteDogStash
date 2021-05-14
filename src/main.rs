@@ -9,7 +9,7 @@ use utils::*;
 mod components;
 mod pages;
 mod routes;
-use crate::pages::{Account, Edit, Home, Login, SignUp};
+use crate::pages::{Account, Edit, Home, Login, Post, SignUp};
 use crate::routes::Routes;
 use components::*;
 use db::*;
@@ -18,6 +18,7 @@ pub enum Msg {
     SignUp(String, String),
     SetRoute(Route),
     Login(String, String),
+    CreatePost(String, String, String),
     Logout,
 }
 //Base App which controls routing
@@ -78,6 +79,10 @@ impl Component for App {
             Msg::Logout => {
                 self.user = None;
             }
+            Msg::CreatePost(author, description, image) => {
+                self.db.create_post(author, description, image);
+                self.storage.store(KEY, Json(&self.db));
+            }
         }
         true
     }
@@ -95,6 +100,9 @@ impl Component for App {
             .link
             .callback(|(username, password)| Msg::Login(username, password));
         let logout = self.link.callback(|_| Msg::Logout);
+        let create_post = self
+            .link
+            .callback(|(author, description, image)| Msg::CreatePost(author, description, image));
         html! {
             <>
                 <Navbar user=&self.user logout=logout/>
@@ -106,7 +114,7 @@ impl Component for App {
                             Routes::Login => html! {<Login callback=login/>},
                             Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},
                             Routes::Edit => html! {<Edit />},
-                            Routes::Post => html! {<Post />},
+                            Routes::Post => html! {<Post db=&self.db callback=create_post user=&self.user/>},
                         }
                     }
                     else{
