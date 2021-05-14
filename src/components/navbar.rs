@@ -96,6 +96,11 @@ impl Navbar {
                     </RouterAnchor<Routes>>
                 </li>
                 <li>
+                    <RouterAnchor<Routes> route=Routes::Post>
+                    { "Create Post" }
+                    </RouterAnchor<Routes>>
+                </li>
+                <li>
                     <a onclick=logout >{"Logout"}</a>
                 </li>
         </ul>

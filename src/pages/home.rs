@@ -1,8 +1,6 @@
 use db::*;
 use yew::prelude::*;
-pub enum Msg {
-    AddOne,
-}
+pub enum Msg {}
 
 #[derive(Properties, Clone)]
 pub struct Props {
@@ -27,7 +25,7 @@ impl Component for Home {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::AddOne => true,
+            _ => true,
         }
     }
 

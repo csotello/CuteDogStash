@@ -10,6 +10,8 @@ pub enum Routes {
     Login,
     #[to = "/signup"]
     SignUp,
+    #[to = "/post"]
+    Post,
     #[to = "/"]
     Home,
 }

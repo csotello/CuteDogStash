@@ -22,7 +22,7 @@ pub struct Post {
     pub author: String,
     pub ratings: Vec<Rating>,
     pub description: String,
-    pub image: Vec<u8>,
+    pub image: String,
 }
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Data {
@@ -40,7 +40,7 @@ impl Default for Data {
     }
 }
 impl Data {
-    pub fn create_post(&mut self, author: String, description: String, image: Vec<u8>) {
+    pub fn create_post(&mut self, author: String, description: String, image: String) {
         let id = random::<u64>();
         let post = Post {
             id,
