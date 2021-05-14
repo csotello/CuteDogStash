@@ -107,21 +107,65 @@ impl Component for App {
             <>
                 <Navbar user=&self.user logout=logout/>
                 {
-                    if let Some(route) = &self.route{
-                        match route {
-                            Routes::Home =>  html! {<Home error=&self.error db=&self.db/>},
-                            Routes::Account => html! {<Account />},
-                            Routes::Login => html! {<Login callback=login/>},
-                            Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},
-                            Routes::Edit => html! {<Edit />},
-                            Routes::Post => html! {<Post db=&self.db callback=create_post user=&self.user/>},
-                        }
-                    }
-                    else{
-                        html!{"No page found"}
-                    }
+                    self.map_route(self.route.as_ref(), self.user.as_ref())
+                    // if let Some(route) = &self.route{
+                    //     match route {
+                    //         Routes::Home =>  html! {<Home error=&self.error db=&self.db/>},
+                    //         Routes::Account => html! {<Account />},
+                    //         Routes::Login => html! {<Login callback=login/>},
+                    //         Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},
+                    //         Routes::Edit => html! {<Edit />},
+                    //         Routes::Post => html! {<Post db=&self.db callback=create_post user=&self.user/>},
+                    //     }
+                    // }
+                    // else{
+                    //     html!{"No page found"}
+                    // }
                 }
             </>
+        }
+    }
+}
+
+impl App {
+    fn map_route(&self, route: Option<&Routes>, user: Option<&User>) -> Html {
+        match user {
+            Some(user) => {
+                let create_post = self.link.callback(|(author, description, image)| {
+                    Msg::CreatePost(author, description, image)
+                });
+                if let Some(route) = &route {
+                    match route {
+                        Routes::Home => html! {<Home error=&self.error db=&self.db/>},
+                        Routes::Account => html! {<Account />},
+                        Routes::Edit => html! {<Edit />},
+                        Routes::Post => {
+                            html! {<Post db=&self.db callback=create_post user=&self.user/>}
+                        }
+                        _ => html! {<p>{"Page not needed"}</p>},
+                    }
+                } else {
+                    html! {<p>{"Error"}</p>}
+                }
+            }
+            None => {
+                let signup = self
+                    .link
+                    .callback(|(username, password)| Msg::SignUp(username, password));
+                let login = self
+                    .link
+                    .callback(|(username, password)| Msg::Login(username, password));
+                if let Some(route) = &route {
+                    match route {
+                        Routes::Home => html! {<Home error=&self.error db=&self.db/>},
+                        Routes::Login => html! {<Login callback=login/>},
+                        Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},
+                        _ => html! {<p>{"Login to access this page"}</p>},
+                    }
+                } else {
+                    html! {<p>{"Error"}</p>}
+                }
+            }
         }
     }
 }
