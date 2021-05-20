@@ -125,7 +125,7 @@ impl App {
                         Routes::Home => {
                             html! {<Home error=&self.error db=&self.db user=&self.user rate=rate/>}
                         }
-                        Routes::Account => html! {<Account />},
+                        Routes::Account => html! {<Account db=&self.db user=&self.user rate=rate/>},
                         Routes::Edit => html! {<Edit />},
                         Routes::Post => {
                             html! {<Post db=&self.db callback=create_post user=&self.user/>}
