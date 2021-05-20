@@ -91,4 +91,13 @@ impl Data {
             }
         }
     }
+    pub fn get_posts(&self, author: String) -> Vec<Post> {
+        let mut posts = Vec::new();
+        for post in &self.posts {
+            if post.author == author {
+                posts.push(post.clone());
+            }
+        }
+        posts
+    }
 }
