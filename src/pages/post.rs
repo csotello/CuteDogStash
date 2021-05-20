@@ -106,7 +106,7 @@ impl Component for Post {
                     <form onsubmit=onsubmit>
                         <fieldset>
                             <label>{"Picture:"}</label>
-                            <img src="data:image/*;base64, ".to_string() + &self.file alt=""/>
+                            <img src="data:image/*;base64, ".to_string() + &self.file alt=""/><br/>
                             <input type="file" accept="image/*" onchange=self.link.callback(move |data: ChangeData| {
                                 match data {
                                     ChangeData::Files(files) => {
@@ -114,19 +114,18 @@ impl Component for Post {
                                     }
                                     _ => Msg::ResetFile
                                 }
-                            }) />
+                            }) /><br/>
                             <label>{"Description:"}</label>
-                            <input type="textare"
+                            <input type="textarea"
                                 rows=4
                                 cols=4
                                 pattern="[A-Za-z0-9!@#$%^&*(){}/|:;-_<>.,=+]*"
                                 value=&self.description
                                 required=true
-                                oninput=update_description/>
+                                oninput=update_description/><br/>
                             <button type="submit">{"Post"}</button>
                         </fieldset>
                     </form>
-                    // <img src="data:image/*;base64, ".to_string() + &self.file alt="pic"/>
                 </>
             }
         }

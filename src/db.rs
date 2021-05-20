@@ -76,4 +76,19 @@ impl Data {
         }
         None
     }
+    pub fn create_rating(&mut self, post_id: u64, author: String, stars: u8, comment: String) {
+        let id = random::<u64>();
+        let rating = Rating {
+            id,
+            post_id,
+            author,
+            stars,
+            comment,
+        };
+        for post in &mut self.posts {
+            if post.id == post_id {
+                post.ratings.push(rating.clone());
+            }
+        }
+    }
 }
