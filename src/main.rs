@@ -19,6 +19,7 @@ pub enum Msg {
     SetRoute(Route),
     Login(String, String),
     CreatePost(String, String, String),
+    Rate(u64, String, u8, String),
     Logout,
 }
 //Base App which controls routing
@@ -83,6 +84,10 @@ impl Component for App {
                 self.db.create_post(author, description, image);
                 self.storage.store(KEY, Json(&self.db));
             }
+            Msg::Rate(id, author, stars, comment) => {
+                self.db.create_rating(id, author, stars, comment);
+                self.storage.store(KEY, Json(&self.db));
+            }
         }
         true
     }
@@ -93,34 +98,12 @@ impl Component for App {
 
     //Match each route to corresponding page
     fn view(&self) -> Html {
-        let signup = self
-            .link
-            .callback(|(username, password)| Msg::SignUp(username, password));
-        let login = self
-            .link
-            .callback(|(username, password)| Msg::Login(username, password));
         let logout = self.link.callback(|_| Msg::Logout);
-        let create_post = self
-            .link
-            .callback(|(author, description, image)| Msg::CreatePost(author, description, image));
         html! {
             <>
                 <Navbar user=&self.user logout=logout/>
                 {
                     self.map_route(self.route.as_ref(), self.user.as_ref())
-                    // if let Some(route) = &self.route{
-                    //     match route {
-                    //         Routes::Home =>  html! {<Home error=&self.error db=&self.db/>},
-                    //         Routes::Account => html! {<Account />},
-                    //         Routes::Login => html! {<Login callback=login/>},
-                    //         Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},
-                    //         Routes::Edit => html! {<Edit />},
-                    //         Routes::Post => html! {<Post db=&self.db callback=create_post user=&self.user/>},
-                    //     }
-                    // }
-                    // else{
-                    //     html!{"No page found"}
-                    // }
                 }
             </>
         }
@@ -129,6 +112,9 @@ impl Component for App {
 
 impl App {
     fn map_route(&self, route: Option<&Routes>, user: Option<&User>) -> Html {
+        let rate = self.link.callback(|(post_id, author, stars, comment)| {
+            Msg::Rate(post_id, author, stars, comment)
+        });
         match user {
             Some(user) => {
                 let create_post = self.link.callback(|(author, description, image)| {
@@ -136,7 +122,9 @@ impl App {
                 });
                 if let Some(route) = &route {
                     match route {
-                        Routes::Home => html! {<Home error=&self.error db=&self.db/>},
+                        Routes::Home => {
+                            html! {<Home error=&self.error db=&self.db user=&self.user rate=rate/>}
+                        }
                         Routes::Account => html! {<Account />},
                         Routes::Edit => html! {<Edit />},
                         Routes::Post => {
@@ -157,7 +145,9 @@ impl App {
                     .callback(|(username, password)| Msg::Login(username, password));
                 if let Some(route) = &route {
                     match route {
-                        Routes::Home => html! {<Home error=&self.error db=&self.db/>},
+                        Routes::Home => {
+                            html! {<Home error=&self.error db=&self.db rate=rate user=None/>}
+                        }
                         Routes::Login => html! {<Login callback=login/>},
                         Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},
                         _ => html! {<p>{"Login to access this page"}</p>},

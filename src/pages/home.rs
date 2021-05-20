@@ -1,12 +1,16 @@
 use crate::components::Post;
 use db::*;
 use yew::prelude::*;
-pub enum Msg {}
+pub enum Msg {
+    Rate(u64, String, u8, String),
+}
 
 #[derive(Properties, Clone)]
 pub struct Props {
     pub error: bool,
     pub db: Data,
+    pub user: Option<User>,
+    pub rate: Callback<(u64, String, u8, String)>,
 }
 
 pub struct Home {
@@ -26,8 +30,11 @@ impl Component for Home {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            _ => true,
+            Msg::Rate(id, author, stars, comment) => {
+                self.props.rate.emit((id, author, stars, comment));
+            }
         }
+        true
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
@@ -37,8 +44,11 @@ impl Component for Home {
 
     fn view(&self) -> Html {
         let map_post = |post: &db::Post| {
+            let callback = self.link.callback(|(post_id, author, stars, comment)| {
+                Msg::Rate(post_id, author, stars, comment)
+            });
             html! {
-                <Post post=post/>
+                <Post post=post callback=callback user=&self.props.user/>
             }
         };
         if self.props.error {
