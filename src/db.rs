@@ -28,14 +28,12 @@ pub struct Post {
 pub struct Data {
     pub users: Vec<User>,
     pub posts: Vec<Post>,
-    pub ratings: Vec<Rating>,
 }
 impl Default for Data {
     fn default() -> Data {
         Data {
             users: Vec::new(),
             posts: Vec::new(),
-            ratings: Vec::new(),
         }
     }
 }
@@ -99,5 +97,20 @@ impl Data {
             }
         }
         posts
+    }
+    pub fn delete_account(&mut self, username: String){
+        let mut found = false;
+        for user in &self.users{
+            if user.username == username{
+                found = true;
+            }
+        }
+        if found{
+            self.users.retain(|user| user.username != username);
+            self.posts.retain(|post| post.author != username);
+            for post in &mut self.posts{
+                post.ratings.retain(|rating| rating.author != username);
+            }
+        }
     }
 }
