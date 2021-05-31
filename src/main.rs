@@ -9,7 +9,7 @@ use utils::*;
 mod components;
 mod pages;
 mod routes;
-use crate::pages::{Account, Edit, Home, Login, Post, SignUp};
+use crate::pages::{Account, Edit, Home, Login, Post, SignUp, UpdateAccount};
 use crate::routes::Routes;
 use components::*;
 use db::*;
@@ -22,6 +22,7 @@ pub enum Msg {
     Rate(u64, String, u8, String),
     DeleteAccount(String),
     DeletePost(u64),
+    UpdateAccount(u64, String, String),
     Logout,
 }
 //Base App which controls routing
@@ -99,6 +100,10 @@ impl Component for App {
                 self.db.delete_post(id);
                 self.storage.store(KEY, Json(&self.db));
             }
+            Msg::UpdateAccount(id, username, password) => {
+                self.db.update_account(id, username, password);
+                self.storage.store(KEY, Json(&self.db));
+            }
         }
         true
     }
@@ -133,17 +138,25 @@ impl App {
                 });
                 let delete_account = self.link.callback(|username| Msg::DeleteAccount(username));
                 let delete_post = self.link.callback(|id| Msg::DeletePost(id));
+                let update_account = self.link.callback(|(id, username, password)| {
+                    Msg::UpdateAccount(id, username, password)
+                });
                 if let Some(route) = &route {
                     match route {
                         Routes::Home => {
                             html! {<Home error=&self.error db=&self.db user=&self.user rate=rate delete=delete_post/>}
                         }
-                        Routes::Account => html! {<Account db=&self.db user=&self.user rate=rate delete_account=delete_account delete_post=delete_post/>},
+                        Routes::Account => {
+                            html! {<Account db=&self.db user=&self.user rate=rate delete_account=delete_account delete_post=delete_post/>}
+                        }
+                        Routes::UpdateAccount => {
+                            html! {<UpdateAccount user=&self.user db=&self.db update=update_account/>}
+                        }
                         Routes::Edit => html! {<Edit />},
                         Routes::Post => {
                             html! {<Post db=&self.db callback=create_post user=&self.user/>}
                         }
-                        _ => html! {<p>{"Page not needed"}</p>},
+                        _ => html! {<p>{"Invalid route"}</p>},
                     }
                 } else {
                     html! {<p>{"Error"}</p>}

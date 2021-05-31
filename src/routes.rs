@@ -12,6 +12,8 @@ pub enum Routes {
     SignUp,
     #[to = "/post"]
     Post,
+    #[to = "/update"]
+    UpdateAccount,
     #[to = "/"]
     Home,
 }
