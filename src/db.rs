@@ -116,4 +116,19 @@ impl Data {
     pub fn delete_post(&mut self, id: u64){
         self.posts.retain(|post| post.id != id);
     }
+    pub fn update_post(&mut self, id: u64, description: String){
+        for post in &mut self.posts{
+            if post.id == id{
+                post.description = description.clone();
+            }
+        }
+    }
+    pub fn update_account(&mut self, id: u64, username: String, password: String){
+        for user in &mut self.users{
+            if user.id == id{
+                user.username = username.clone();
+                user.password = hash(password.clone(), 4).unwrap();
+            }
+        }
+    }
 }
