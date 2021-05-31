@@ -92,10 +92,9 @@ impl Component for Post {
         };
         let delete = self.link.callback(|_| Msg::DeletePost);
         let owned = {
-            if let Some(user) = &self.props.user{
+            if let Some(user) = &self.props.user {
                 user.username == self.props.post.author
-            }
-            else{
+            } else {
                 false
             }
         };
@@ -105,12 +104,13 @@ impl Component for Post {
                 <span>{"Author:"}{&self.props.post.author}</span><br/>
                 <img src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
                 <p>{"Description:"}{&self.props.post.description}</p>
-                {if owned{ html!{<button onclick=delete>{"Delete"}</button>}} else{html!{}}}
+                {if owned{ html!{<button onclick=delete>{"Delete Post"}</button>}} else{html!{}}}
                 <p>{"Ratings:"}</p>
                 {for self.props.post.ratings.iter().map(map_rating)}
             </div>
             <form onsubmit=submit>
                 <fieldset>
+                    <p>{"Rate Post"}</p>
                     <label>{"Comment"}</label>
                     <input type="textarea"
                         rows=4

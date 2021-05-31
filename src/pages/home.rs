@@ -57,7 +57,7 @@ impl Component for Home {
                 <Post post=post rate=rate delete=delete user=&self.props.user/>
             }
         };
-        html!{
+        html! {
             <>
                 {if self.props.error{html! {<p>{"Error"}</p>}} else {html!{}}}
                 {for self.props.db.posts.iter().map(map_post)}

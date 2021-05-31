@@ -102,7 +102,7 @@ impl Component for Account {
                     <p>{"Account"}</p>
                     <input type="text" value=&self.search oninput=update_search/>
                     <button onclick=update_author>{"Search"}</button><br/>
-                    {if self.author == "" {html!{<p>{"Enter an account to search"}</p>}} 
+                    {if self.author == "" {html!{<p>{"Enter an account to search"}</p>}}
                     else if self.author == user.username{ html!{<button onclick=delete_account>{"Delete Account"}</button>}}
                     else {html!{}}}
                     <p>{"Username:"}{&self.author}</p>

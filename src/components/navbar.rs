@@ -96,6 +96,11 @@ impl Navbar {
                     </RouterAnchor<Routes>>
                 </li>
                 <li>
+                    <RouterAnchor<Routes> route=Routes::UpdateAccount>
+                    { "Update Account" }
+                    </RouterAnchor<Routes>>
+                </li>
+                <li>
                     <RouterAnchor<Routes> route=Routes::Post>
                     { "Create Post" }
                     </RouterAnchor<Routes>>
