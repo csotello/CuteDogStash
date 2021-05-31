@@ -20,6 +20,7 @@ pub enum Msg {
     Login(String, String),
     CreatePost(String, String, String),
     Rate(u64, String, u8, String),
+    DeleteAccount(String),
     Logout,
 }
 //Base App which controls routing
@@ -88,6 +89,11 @@ impl Component for App {
                 self.db.create_rating(id, author, stars, comment);
                 self.storage.store(KEY, Json(&self.db));
             }
+            Msg::DeleteAccount(username) => {
+                self.db.delete_account(username);
+                self.user = None;
+                self.storage.store(KEY, Json(&self.db));
+            }
         }
         true
     }
@@ -116,16 +122,17 @@ impl App {
             Msg::Rate(post_id, author, stars, comment)
         });
         match user {
-            Some(user) => {
+            Some(_user) => {
                 let create_post = self.link.callback(|(author, description, image)| {
                     Msg::CreatePost(author, description, image)
                 });
+                let delete_account = self.link.callback(|username| Msg::DeleteAccount(username));
                 if let Some(route) = &route {
                     match route {
                         Routes::Home => {
                             html! {<Home error=&self.error db=&self.db user=&self.user rate=rate/>}
                         }
-                        Routes::Account => html! {<Account db=&self.db user=&self.user rate=rate/>},
+                        Routes::Account => html! {<Account db=&self.db user=&self.user rate=rate delete=delete_account/>},
                         Routes::Edit => html! {<Edit />},
                         Routes::Post => {
                             html! {<Post db=&self.db callback=create_post user=&self.user/>}
