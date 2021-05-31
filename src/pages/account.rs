@@ -9,6 +9,7 @@ pub enum Msg {
     SetAuthor(String),
     SetSearch(String),
     DeleteAccount,
+    DeletePost(u64),
     None,
 }
 
@@ -17,7 +18,8 @@ pub struct Props {
     pub db: Data,
     pub user: Option<User>,
     pub rate: Callback<(u64, String, u8, String)>,
-    pub delete: Callback<String>,
+    pub delete_account: Callback<String>,
+    pub delete_post: Callback<u64>,
 }
 pub struct Account {
     router_agent: Box<dyn Bridge<RouteAgent>>,
@@ -62,8 +64,11 @@ impl Component for Account {
             }
             Msg::DeleteAccount => {
                 let author = self.author.clone();
-                self.props.delete.emit(author);
+                self.props.delete_account.emit(author);
                 self.router_agent.send(ChangeRoute(Routes::Home.into()));
+            }
+            Msg::DeletePost(id) => {
+                self.props.delete_post.emit(id);
             }
             Msg::None => {}
         }
@@ -78,11 +83,12 @@ impl Component for Account {
     fn view(&self) -> Html {
         if let Some(user) = &self.props.user {
             let map_post = |post: &db::Post| {
-                let callback = self.link.callback(|(post_id, author, stars, comment)| {
+                let rate = self.link.callback(|(post_id, author, stars, comment)| {
                     Msg::Rate(post_id, author, stars, comment)
                 });
+                let delete = self.link.callback(|id| Msg::DeletePost(id));
                 html! {
-                    <Post post=post callback=callback user=&self.props.user/>
+                    <Post post=post rate=rate delete=delete user=&self.props.user/>
                 }
             };
             let search = self.search.clone();

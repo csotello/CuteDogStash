@@ -1,4 +1,4 @@
-#![recursion_limit = "256"] //Increase limit for rendering pages
+#![recursion_limit = "512"] //Increase limit for rendering pages
 use yew::format::Json;
 use yew::prelude::*;
 use yew::services::storage::Area;
@@ -21,6 +21,7 @@ pub enum Msg {
     CreatePost(String, String, String),
     Rate(u64, String, u8, String),
     DeleteAccount(String),
+    DeletePost(u64),
     Logout,
 }
 //Base App which controls routing
@@ -94,6 +95,10 @@ impl Component for App {
                 self.user = None;
                 self.storage.store(KEY, Json(&self.db));
             }
+            Msg::DeletePost(id) => {
+                self.db.delete_post(id);
+                self.storage.store(KEY, Json(&self.db));
+            }
         }
         true
     }
@@ -127,12 +132,13 @@ impl App {
                     Msg::CreatePost(author, description, image)
                 });
                 let delete_account = self.link.callback(|username| Msg::DeleteAccount(username));
+                let delete_post = self.link.callback(|id| Msg::DeletePost(id));
                 if let Some(route) = &route {
                     match route {
                         Routes::Home => {
-                            html! {<Home error=&self.error db=&self.db user=&self.user rate=rate/>}
+                            html! {<Home error=&self.error db=&self.db user=&self.user rate=rate delete=delete_post/>}
                         }
-                        Routes::Account => html! {<Account db=&self.db user=&self.user rate=rate delete=delete_account/>},
+                        Routes::Account => html! {<Account db=&self.db user=&self.user rate=rate delete_account=delete_account delete_post=delete_post/>},
                         Routes::Edit => html! {<Edit />},
                         Routes::Post => {
                             html! {<Post db=&self.db callback=create_post user=&self.user/>}
@@ -150,10 +156,11 @@ impl App {
                 let login = self
                     .link
                     .callback(|(username, password)| Msg::Login(username, password));
+                let delete_post = self.link.callback(|id| Msg::DeletePost(id));
                 if let Some(route) = &route {
                     match route {
                         Routes::Home => {
-                            html! {<Home error=&self.error db=&self.db rate=rate user=None/>}
+                            html! {<Home error=&self.error db=&self.db rate=rate delete=delete_post user=None/>}
                         }
                         Routes::Login => html! {<Login callback=login/>},
                         Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},

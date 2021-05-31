@@ -113,4 +113,7 @@ impl Data {
             }
         }
     }
+    pub fn delete_post(&mut self, id: u64){
+        self.posts.retain(|post| post.id != id);
+    }
 }

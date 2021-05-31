@@ -3,6 +3,7 @@ use db::*;
 use yew::prelude::*;
 pub enum Msg {
     Rate(u64, String, u8, String),
+    Delete(u64),
 }
 
 #[derive(Properties, Clone)]
@@ -11,6 +12,7 @@ pub struct Props {
     pub db: Data,
     pub user: Option<User>,
     pub rate: Callback<(u64, String, u8, String)>,
+    pub delete: Callback<u64>,
 }
 
 pub struct Home {
@@ -33,6 +35,9 @@ impl Component for Home {
             Msg::Rate(id, author, stars, comment) => {
                 self.props.rate.emit((id, author, stars, comment));
             }
+            Msg::Delete(id) => {
+                self.props.delete.emit(id);
+            }
         }
         true
     }
@@ -44,19 +49,19 @@ impl Component for Home {
 
     fn view(&self) -> Html {
         let map_post = |post: &db::Post| {
-            let callback = self.link.callback(|(post_id, author, stars, comment)| {
+            let rate = self.link.callback(|(post_id, author, stars, comment)| {
                 Msg::Rate(post_id, author, stars, comment)
             });
+            let delete = self.link.callback(|id| Msg::Delete(id));
             html! {
-                <Post post=post callback=callback user=&self.props.user/>
+                <Post post=post rate=rate delete=delete user=&self.props.user/>
             }
         };
-        if self.props.error {
-            html! {<p>{"Error"}</p>}
-        } else {
-            html! {
+        html!{
+            <>
+                {if self.props.error{html! {<p>{"Error"}</p>}} else {html!{}}}
                 {for self.props.db.posts.iter().map(map_post)}
-            }
+            </>
         }
     }
 }
