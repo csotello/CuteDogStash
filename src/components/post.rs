@@ -4,12 +4,14 @@ pub enum Msg {
     SetComment(String),
     SetRating(String),
     Submit,
+    DeletePost,
 }
 
 #[derive(Properties, Clone)]
 pub struct Props {
     pub post: db::Post,
-    pub callback: Callback<(u64, String, u8, String)>,
+    pub rate: Callback<(u64, String, u8, String)>,
+    pub delete: Callback<u64>,
     pub user: Option<User>,
 }
 
@@ -49,7 +51,7 @@ impl Component for Post {
             Msg::Submit => {
                 if let Some(user) = &self.props.user {
                     self.error = false;
-                    self.props.callback.emit((
+                    self.props.rate.emit((
                         self.props.post.id,
                         user.username.clone(),
                         self.rating,
@@ -58,6 +60,10 @@ impl Component for Post {
                 } else {
                     self.error = true;
                 }
+            }
+            Msg::DeletePost => {
+                let id = self.props.post.id;
+                self.props.delete.emit(id);
             }
         }
         true
@@ -84,12 +90,23 @@ impl Component for Post {
                 </div>
             }
         };
+        let delete = self.link.callback(|_| Msg::DeletePost);
+        let owned = {
+            if let Some(user) = &self.props.user{
+                user.username == self.props.post.author
+            }
+            else{
+                false
+            }
+        };
         html! {
             <>
             <div class="post">
                 <span>{"Author:"}{&self.props.post.author}</span><br/>
                 <img src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
                 <p>{"Description:"}{&self.props.post.description}</p>
+                {if owned{ html!{<button onclick=delete>{"Delete"}</button>}} else{html!{}}}
+                <p>{"Ratings:"}</p>
                 {for self.props.post.ratings.iter().map(map_rating)}
             </div>
             <form onsubmit=submit>
@@ -108,8 +125,8 @@ impl Component for Post {
                         oninput=update_rating/>
                     <button type="submit">{"Rate"}</button>
                 </fieldset>
-                {if self.error {html!{<span>{"Must login to rate"}</span>}} else{ html!{}}}
             </form>
+            {if self.error {html!{<span>{"Must login to rate"}</span>}} else{ html!{}}}
             </>
         }
     }
