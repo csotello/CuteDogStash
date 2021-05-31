@@ -98,36 +98,48 @@ impl Data {
         }
         posts
     }
-    pub fn delete_account(&mut self, username: String){
+    pub fn delete_account(&mut self, username: String) {
         let mut found = false;
-        for user in &self.users{
-            if user.username == username{
+        for user in &self.users {
+            if user.username == username {
                 found = true;
             }
         }
-        if found{
+        if found {
             self.users.retain(|user| user.username != username);
             self.posts.retain(|post| post.author != username);
-            for post in &mut self.posts{
+            for post in &mut self.posts {
                 post.ratings.retain(|rating| rating.author != username);
             }
         }
     }
-    pub fn delete_post(&mut self, id: u64){
+    pub fn delete_post(&mut self, id: u64) {
         self.posts.retain(|post| post.id != id);
     }
-    pub fn update_post(&mut self, id: u64, description: String){
-        for post in &mut self.posts{
-            if post.id == id{
+    pub fn update_post(&mut self, id: u64, description: String) {
+        for post in &mut self.posts {
+            if post.id == id {
                 post.description = description.clone();
             }
         }
     }
-    pub fn update_account(&mut self, id: u64, username: String, password: String){
-        for user in &mut self.users{
-            if user.id == id{
+    pub fn update_account(&mut self, id: u64, username: String, password: String) {
+        let mut author = "".to_string();
+        for user in &mut self.users {
+            if user.id == id {
+                author = user.username.clone();
                 user.username = username.clone();
                 user.password = hash(password.clone(), 4).unwrap();
+            }
+        }
+        for post in &mut self.posts{
+            if post.author == author{
+                post.author = username.clone();
+            }
+            for rating in &mut post.ratings{
+                if rating.author == author{
+                    rating.author = username.clone();
+                }
             }
         }
     }
