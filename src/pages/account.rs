@@ -1,4 +1,5 @@
 use crate::components::Post;
+use crate::utils::*;
 use crate::Routes;
 use db::*;
 use yew::prelude::*;
@@ -10,6 +11,7 @@ pub enum Msg {
     SetSearch(String),
     DeleteAccount,
     DeletePost(u64),
+    Edit(u64),
     None,
 }
 
@@ -19,6 +21,7 @@ pub struct Props {
     pub user: Option<User>,
     pub rate: Callback<(u64, String, u8, String)>,
     pub delete_account: Callback<String>,
+    pub edit: Callback<u64>,
     pub delete_post: Callback<u64>,
 }
 pub struct Account {
@@ -70,6 +73,9 @@ impl Component for Account {
             Msg::DeletePost(id) => {
                 self.props.delete_post.emit(id);
             }
+            Msg::Edit(id) => {
+                self.props.edit.emit(id);
+            }
             Msg::None => {}
         }
         true
@@ -86,9 +92,16 @@ impl Component for Account {
                 let rate = self.link.callback(|(post_id, author, stars, comment)| {
                     Msg::Rate(post_id, author, stars, comment)
                 });
-                let delete = self.link.callback(|id| Msg::DeletePost(id));
+                let delete = self.link.callback(|id| {
+                    log("Deleting Post".to_string());
+                    Msg::DeletePost(id)
+                });
+                let edit = self.link.callback(|id| {
+                    log("Editing post".to_string());
+                    Msg::Edit(id)
+                });
                 html! {
-                    <Post post=post rate=rate delete=delete user=&self.props.user/>
+                    <Post post=post rate=rate delete=delete user=&self.props.user edit=edit/>
                 }
             };
             let search = self.search.clone();

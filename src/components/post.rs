@@ -3,6 +3,7 @@ use yew::prelude::*;
 pub enum Msg {
     SetComment(String),
     SetRating(String),
+    Edit,
     Submit,
     DeletePost,
 }
@@ -11,6 +12,7 @@ pub enum Msg {
 pub struct Props {
     pub post: db::Post,
     pub rate: Callback<(u64, String, u8, String)>,
+    pub edit: Callback<u64>,
     pub delete: Callback<u64>,
     pub user: Option<User>,
 }
@@ -65,6 +67,9 @@ impl Component for Post {
                 let id = self.props.post.id;
                 self.props.delete.emit(id);
             }
+            Msg::Edit => {
+                self.props.edit.emit(self.props.post.id);
+            }
         }
         true
     }
@@ -98,13 +103,22 @@ impl Component for Post {
                 false
             }
         };
+        // let edit = self.props.edit.emit(self.props.post.id.clone());
+        let edit = self.link.callback(|_| Msg::Edit);
         html! {
             <>
             <div class="post">
                 <span>{"Author:"}{&self.props.post.author}</span><br/>
                 <img src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
                 <p>{"Description:"}{&self.props.post.description}</p>
-                {if owned{ html!{<button onclick=delete>{"Delete Post"}</button>}} else{html!{}}}
+                {if owned{
+                    html!{
+                        <>
+                            <button onclick=delete>{"Delete Post"}</button>
+                            <button onclick=edit>{"Edit Post"}</button>
+                        </>
+                    }
+                } else{html!{}}}
                 <p>{"Ratings:"}</p>
                 {for self.props.post.ratings.iter().map(map_rating)}
             </div>

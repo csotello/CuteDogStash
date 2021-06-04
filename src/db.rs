@@ -98,6 +98,14 @@ impl Data {
         }
         posts
     }
+    pub fn get_post(&self, id: u64) -> Option<Post> {
+        for post in &self.posts {
+            if post.id == id {
+                return Some(post.clone());
+            }
+        }
+        None
+    }
     pub fn delete_account(&mut self, username: String) {
         let mut found = false;
         for user in &self.users {
@@ -116,10 +124,11 @@ impl Data {
     pub fn delete_post(&mut self, id: u64) {
         self.posts.retain(|post| post.id != id);
     }
-    pub fn update_post(&mut self, id: u64, description: String) {
+    pub fn update_post(&mut self, id: u64, description: String, image: String) {
         for post in &mut self.posts {
             if post.id == id {
                 post.description = description.clone();
+                post.image = image.clone();
             }
         }
     }
@@ -132,12 +141,12 @@ impl Data {
                 user.password = hash(password.clone(), 4).unwrap();
             }
         }
-        for post in &mut self.posts{
-            if post.author == author{
+        for post in &mut self.posts {
+            if post.author == author {
                 post.author = username.clone();
             }
-            for rating in &mut post.ratings{
-                if rating.author == author{
+            for rating in &mut post.ratings {
+                if rating.author == author {
                     rating.author = username.clone();
                 }
             }

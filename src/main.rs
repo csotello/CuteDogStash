@@ -4,16 +4,16 @@ use yew::prelude::*;
 use yew::services::storage::Area;
 use yew::services::StorageService;
 use yew_router::prelude::*;
-mod utils;
-use utils::*;
 mod components;
 mod pages;
 mod routes;
+mod utils;
 use crate::pages::{Account, Edit, Home, Login, Post, SignUp, UpdateAccount};
 use crate::routes::Routes;
 use components::*;
 use db::*;
-const KEY: &'static str = "CuteDogStash_KEY";
+use utils::*;
+const KEY: &str = "CuteDogStash_KEY";
 pub enum Msg {
     SignUp(String, String),
     SetRoute(Route),
@@ -23,14 +23,18 @@ pub enum Msg {
     DeleteAccount(String),
     DeletePost(u64),
     UpdateAccount(u64, String, String),
+    UpdatePost(u64, String, String),
+    EditPost(u64),
     Logout,
 }
 //Base App which controls routing
+#[allow(dead_code)] //router_agent considered dead code
 struct App {
     link: ComponentLink<Self>,
     db: Data,           //Database
     user: Option<User>, //Current user
     error: bool,
+    post_id: u64,
     storage: StorageService, //StorageService to persist in localstorage
     route: Option<Routes>,   //Current Route
     router_agent: Box<dyn Bridge<RouteAgent>>, //RouterAgent to switch routes
@@ -49,9 +53,10 @@ impl Component for App {
         let db = data.unwrap_or_else(|_| Data::default());
         Self {
             link,
-            db: db,
+            db,
             user: None,
             error: false,
+            post_id: 0,
             route: Routes::switch(route),
             storage,
             router_agent,
@@ -104,6 +109,14 @@ impl Component for App {
                 self.db.update_account(id, username, password);
                 self.storage.store(KEY, Json(&self.db));
             }
+            Msg::EditPost(id) => {
+                self.post_id = id;
+                self.route = Some(Routes::Edit);
+            }
+            Msg::UpdatePost(id, desc, img) => {
+                self.db.update_post(id, desc, img);
+                self.storage.store(KEY, Json(&self.db));
+            }
         }
         true
     }
@@ -136,23 +149,38 @@ impl App {
                 let create_post = self.link.callback(|(author, description, image)| {
                     Msg::CreatePost(author, description, image)
                 });
-                let delete_account = self.link.callback(|username| Msg::DeleteAccount(username));
-                let delete_post = self.link.callback(|id| Msg::DeletePost(id));
+                let delete_account = self.link.callback(|username| {
+                    log("Deleting account".to_string());
+                    Msg::DeleteAccount(username)
+                });
+                let delete_post = self.link.callback(|id| {
+                    log("Deleting Post".to_string());
+                    Msg::DeletePost(id)
+                });
                 let update_account = self.link.callback(|(id, username, password)| {
                     Msg::UpdateAccount(id, username, password)
+                });
+                let update_post = self
+                    .link
+                    .callback(|(id, desc, img)| Msg::UpdatePost(id, desc, img));
+                let edit_post = self.link.callback(|id| {
+                    log("Editing post".to_string());
+                    Msg::EditPost(id)
                 });
                 if let Some(route) = &route {
                     match route {
                         Routes::Home => {
-                            html! {<Home error=&self.error db=&self.db user=&self.user rate=rate delete=delete_post/>}
+                            html! {<Home error=&self.error db=&self.db user=&self.user rate=rate delete=delete_post edit=edit_post/>}
                         }
                         Routes::Account => {
-                            html! {<Account db=&self.db user=&self.user rate=rate delete_account=delete_account delete_post=delete_post/>}
+                            html! {<Account db=&self.db user=&self.user rate=rate delete_account=delete_account delete_post=delete_post edit=edit_post/>}
                         }
                         Routes::UpdateAccount => {
                             html! {<UpdateAccount user=&self.user db=&self.db update=update_account/>}
                         }
-                        Routes::Edit => html! {<Edit />},
+                        Routes::Edit => html! {
+                            <Edit callback=update_post db=&self.db id=self.post_id/>
+                        },
                         Routes::Post => {
                             html! {<Post db=&self.db callback=create_post user=&self.user/>}
                         }
@@ -169,11 +197,18 @@ impl App {
                 let login = self
                     .link
                     .callback(|(username, password)| Msg::Login(username, password));
-                let delete_post = self.link.callback(|id| Msg::DeletePost(id));
+                let delete_post = self.link.callback(|id| {
+                    log("Deleting Post".to_string());
+                    Msg::DeletePost(id)
+                });
+                let edit_post = self.link.callback(|id| {
+                    log("Editing post".to_string());
+                    Msg::EditPost(id)
+                });
                 if let Some(route) = &route {
                     match route {
                         Routes::Home => {
-                            html! {<Home error=&self.error db=&self.db rate=rate delete=delete_post user=None/>}
+                            html! {<Home error=&self.error db=&self.db rate=rate delete=delete_post user=None edit=edit_post/>}
                         }
                         Routes::Login => html! {<Login callback=login/>},
                         Routes::SignUp => html! {<SignUp callback=signup db=&self.db/>},
