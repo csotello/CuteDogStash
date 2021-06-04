@@ -52,6 +52,7 @@ impl Component for Navbar {
                 }
             }
             </nav>
+            <br/><br/>
             </>
         }
     }
@@ -59,7 +60,7 @@ impl Component for Navbar {
 impl Navbar {
     fn login_links(&self) -> Html {
         html! {
-            <ul>
+            <ul >
                 <li>
                     <RouterAnchor<Routes> route=Routes::Home>
                     { "Home" }
@@ -106,7 +107,7 @@ impl Navbar {
                     </RouterAnchor<Routes>>
                 </li>
                 <li>
-                    <a onclick=logout >{"Logout"}</a>
+                    <a onclick=logout style="color: rgb(85, 26, 139); cursor: pointer;text-decoration-line: underline;">{"Logout"}</a>
                 </li>
         </ul>
         }

@@ -70,7 +70,9 @@ impl Component for Login {
             Msg::Submit
         });
         html! {
-            <>
+            <div>
+                <br/>
+                <p>{"Login"}</p>
                 <form onsubmit=onsubmit>
                     <fieldset>
                         <label>{"Username:"}</label>
@@ -86,7 +88,7 @@ impl Component for Login {
                         <button type="submit">{"Login"}</button>
                     </fieldset>
                 </form>
-            </>
+            </div>
         }
     }
 }
