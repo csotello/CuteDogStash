@@ -106,10 +106,12 @@ impl Component for Post {
         // let edit = self.props.edit.emit(self.props.post.id.clone());
         let edit = self.link.callback(|_| Msg::Edit);
         html! {
-            <>
             <div class="post">
+            <div class="card border-dark">
+            <img class="card-img-top" src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
+            <div class="card-body">
                 <span>{"Author:"}{&self.props.post.author}</span><br/>
-                <img src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
+                // <img class="card-img-top" src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
                 <p>{"Description:"}{&self.props.post.description}</p>
                 {if owned{
                     html!{
@@ -121,6 +123,7 @@ impl Component for Post {
                 } else{html!{}}}
                 <p>{"Ratings:"}</p>
                 {for self.props.post.ratings.iter().map(map_rating)}
+            </div>
             </div>
             <form onsubmit=submit>
                 <fieldset>
@@ -141,7 +144,7 @@ impl Component for Post {
                 </fieldset>
             </form>
             {if self.error {html!{<span>{"Must login to rate"}</span>}} else{ html!{}}}
-            </>
+            </div>
         }
     }
 }

@@ -102,6 +102,7 @@ impl Component for Post {
         } else {
             html! {
                 <>
+                    <br/>
                     <p>{"Create Post"}</p>
                     <form onsubmit=onsubmit>
                         <fieldset>

@@ -7,3 +7,16 @@ li{
     float: left;
     padding: 15px 15px;
 }
+body{
+  justify-content: center;
+}
+fieldset{
+  max-width: 50%;
+}
+.post{
+  border: solid black .5px;
+  padding: 10px;
+  max-width: 50%;
+  margin-bottom: 10px;
+  margin-left: 25%;
+}

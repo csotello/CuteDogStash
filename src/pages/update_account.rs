@@ -12,8 +12,6 @@ pub enum Msg {
 }
 
 pub struct UpdateAccount {
-    // `ComponentLink` is like a reference to a component.
-    // It can be used to send messages to the component
     password: String,
     username: String,
     error: bool,
@@ -90,6 +88,7 @@ impl Component for UpdateAccount {
         html! {
             <div>
                 <br/>
+                <p>{"Update Account Info"}</p>
                 {if self.error {html!{<p>{"Invalid username or password\nUsername cannot contain special characters"}</p>}} else {html!{}}}
                 <form onsubmit=onsubmit>
                     <fieldset>
