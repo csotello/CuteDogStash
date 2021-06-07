@@ -125,7 +125,6 @@ impl Component for App {
         false //No props to change
     }
 
-    //Match each route to corresponding page
     fn view(&self) -> Html {
         let logout = self.link.callback(|_| Msg::Logout);
         html! {
@@ -140,6 +139,7 @@ impl Component for App {
 }
 
 impl App {
+    /// Match each route to corresponding page
     fn map_route(&self, route: Option<&Routes>, user: Option<&User>) -> Html {
         let rate = self.link.callback(|(post_id, author, stars, comment)| {
             Msg::Rate(post_id, author, stars, comment)

@@ -13,8 +13,6 @@ pub struct Props {
 }
 
 pub struct Navbar {
-    // `ComponentLink` is like a reference to a component.
-    // It can be used to send messages to the component
     link: ComponentLink<Self>,
     props: Props,
 }

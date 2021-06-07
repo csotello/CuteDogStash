@@ -38,6 +38,7 @@ impl Default for Data {
     }
 }
 impl Data {
+    /// Create a new post
     pub fn create_post(&mut self, author: String, description: String, image: String) {
         let id = random::<u64>();
         let post = Post {
@@ -49,6 +50,7 @@ impl Data {
         };
         self.posts.push(post);
     }
+    /// Check if username is already in the use
     pub fn check_username(&self, username: String) -> bool {
         for user in self.users.iter() {
             if user.username == username {
@@ -57,6 +59,7 @@ impl Data {
         }
         true
     }
+    /// Create a new user 
     pub fn create_user(&mut self, username: String, password: String) {
         let id = random::<u64>();
         let hash = hash(password, 4).unwrap();
@@ -66,6 +69,7 @@ impl Data {
             password: hash,
         });
     }
+    /// Login user by traversing and returning a copy 
     pub fn login(&self, username: String, password: String) -> Option<User> {
         for user in self.users.iter() {
             if user.username == username && verify(password.clone(), &user.password).unwrap() {
@@ -74,6 +78,7 @@ impl Data {
         }
         None
     }
+    //// Create a new rating
     pub fn create_rating(&mut self, post_id: u64, author: String, stars: u8, comment: String) {
         let id = random::<u64>();
         let rating = Rating {
@@ -89,6 +94,7 @@ impl Data {
             }
         }
     }
+    /// Get posts by author
     pub fn get_posts(&self, author: String) -> Vec<Post> {
         let mut posts = Vec::new();
         for post in &self.posts {
@@ -98,6 +104,7 @@ impl Data {
         }
         posts
     }
+    /// Get post by ID
     pub fn get_post(&self, id: u64) -> Option<Post> {
         for post in &self.posts {
             if post.id == id {
@@ -106,6 +113,7 @@ impl Data {
         }
         None
     }
+    /// Delete an account in the DB
     pub fn delete_account(&mut self, username: String) {
         let mut found = false;
         for user in &self.users {
@@ -121,9 +129,11 @@ impl Data {
             }
         }
     }
+    /// Delete a post in the DB
     pub fn delete_post(&mut self, id: u64) {
         self.posts.retain(|post| post.id != id);
     }
+    /// Update a post in the DB
     pub fn update_post(&mut self, id: u64, description: String, image: String) {
         for post in &mut self.posts {
             if post.id == id {
@@ -132,6 +142,7 @@ impl Data {
             }
         }
     }
+    /// Update account info
     pub fn update_account(&mut self, id: u64, username: String, password: String) {
         let mut author = "".to_string();
         for user in &mut self.users {
