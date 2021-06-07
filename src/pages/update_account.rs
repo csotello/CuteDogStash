@@ -103,7 +103,7 @@ impl Component for UpdateAccount {
                         value=&self.password required=true
                         oninput=update_password/>
                     <br/>
-                    <button type="submit" class="btn btn-primary">{"SignUp"}</button>
+                    <button type="submit" class="btn btn-primary">{"Update"}</button>
                     </fieldset>
                 </form>
             </div>
