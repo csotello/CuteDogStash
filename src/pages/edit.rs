@@ -93,7 +93,8 @@ impl Component for Edit {
             Msg::Submit
         });
         html! {
-            <>
+            <div class="border border-dark login">
+                <br/>
                 <p>{"Edit"}</p>
                 <form onsubmit=submit>
                     <fieldset>
@@ -120,7 +121,7 @@ impl Component for Edit {
                        <button type="submit" class="btn btn-primary">{"Update"}</button>
                     </fieldset>
                 </form>
-            </>
+            </div>
         }
     }
 }

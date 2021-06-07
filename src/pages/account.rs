@@ -112,6 +112,8 @@ impl Component for Account {
             let delete_account = self.link.callback(|_| Msg::DeleteAccount);
             html! {
                 <>
+                    <br/>
+                    <div class="border border-dark account">
                     <p>{"Account"}</p>
                     <input type="text" value=&self.search oninput=update_search/>
                     <button onclick=update_author class="btn btn-outline-primary">{"Search"}</button><br/>
@@ -123,6 +125,7 @@ impl Component for Account {
                     }
                     else {html!{}}}
                     <p>{"Username:"}{&self.author}</p>
+                    </div>
                     {for self.props.db.get_posts(self.author.clone()).iter().map(map_post)}
 
                 </>

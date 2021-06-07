@@ -101,7 +101,7 @@ impl Component for Post {
             html! {<p>{"Error"}</p>}
         } else {
             html! {
-                <div class="border border-dark">
+                <div class="border border-dark create">
                     <br/>
                     <p>{"Create Post"}</p>
                     <form onsubmit=onsubmit>

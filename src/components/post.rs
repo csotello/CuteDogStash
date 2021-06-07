@@ -86,7 +86,7 @@ impl Component for Post {
         });
         let map_rating = |rating: &Rating| {
             html! {
-                <div class="rating">
+                <div class="rating border border-dark">
                     <span>{"Author:"}{&rating.author}</span><br/>
                     <span>{"Rating:"}{&rating.stars}{"/5"}</span>
                     <p>{&rating.comment}</p>
