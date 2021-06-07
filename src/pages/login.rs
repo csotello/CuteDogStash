@@ -70,7 +70,7 @@ impl Component for Login {
             Msg::Submit
         });
         html! {
-            <div>
+            <div class="border border-dark login">
                 <br/>
                 <p>{"Login"}</p>
                 <form onsubmit=onsubmit>
@@ -80,12 +80,14 @@ impl Component for Login {
                             value=&self.username
                             required=true
                             oninput=update_username/>
+                        <br/>
                         <label>{"Password:"}</label>
                         <input type="password"
                             value=&self.password
                             required=true
                             oninput=update_password/>
-                        <button type="submit">{"Login"}</button>
+                        <br/>
+                        <button type="submit" class="btn btn-primary">{"Login"}</button>
                     </fieldset>
                 </form>
             </div>

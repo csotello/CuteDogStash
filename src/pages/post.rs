@@ -101,7 +101,7 @@ impl Component for Post {
             html! {<p>{"Error"}</p>}
         } else {
             html! {
-                <>
+                <div class="border border-dark">
                     <br/>
                     <p>{"Create Post"}</p>
                     <form onsubmit=onsubmit>
@@ -124,10 +124,10 @@ impl Component for Post {
                                 value=&self.description
                                 required=true
                                 oninput=update_description/><br/>
-                            <button type="submit">{"Post"}</button>
+                            <button type="submit" class="btn btn-primary">{"Post"}</button>
                         </fieldset>
                     </form>
-                </>
+                </div>
             }
         }
     }

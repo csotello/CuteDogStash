@@ -114,9 +114,13 @@ impl Component for Account {
                 <>
                     <p>{"Account"}</p>
                     <input type="text" value=&self.search oninput=update_search/>
-                    <button onclick=update_author>{"Search"}</button><br/>
+                    <button onclick=update_author class="btn btn-outline-primary">{"Search"}</button><br/>
                     {if self.author == "" {html!{<p>{"Enter an account to search"}</p>}}
-                    else if self.author == user.username{ html!{<button onclick=delete_account>{"Delete Account"}</button>}}
+                    else if self.author == user.username{
+                        html!{
+                            <button onclick=delete_account class="btn btn-outline-danger">{"Delete Account"}</button>
+                        }
+                    }
                     else {html!{}}}
                     <p>{"Username:"}{&self.author}</p>
                     {for self.props.db.get_posts(self.author.clone()).iter().map(map_post)}

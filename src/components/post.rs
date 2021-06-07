@@ -18,8 +18,6 @@ pub struct Props {
 }
 
 pub struct Post {
-    // `ComponentLink` is like a reference to a component.
-    // It can be used to send messages to the component
     link: ComponentLink<Self>,
     props: Props,
     comment: String,
@@ -103,7 +101,6 @@ impl Component for Post {
                 false
             }
         };
-        // let edit = self.props.edit.emit(self.props.post.id.clone());
         let edit = self.link.callback(|_| Msg::Edit);
         html! {
             <div class="post">
@@ -111,13 +108,12 @@ impl Component for Post {
             <img class="card-img-top" src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
             <div class="card-body">
                 <span>{"Author:"}{&self.props.post.author}</span><br/>
-                // <img class="card-img-top" src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
                 <p>{"Description:"}{&self.props.post.description}</p>
                 {if owned{
                     html!{
                         <>
-                            <button onclick=delete>{"Delete Post"}</button>
-                            <button onclick=edit>{"Edit Post"}</button>
+                            <button onclick=edit class="btn btn-primary">{"Edit Post"}</button>
+                            <button onclick=delete class="btn btn-secondary">{"Delete Post"}</button>
                         </>
                     }
                 } else{html!{}}}
@@ -126,7 +122,7 @@ impl Component for Post {
             </div>
             </div>
             <form onsubmit=submit>
-                <fieldset>
+                <div class="mb-3">
                     <p>{"Rate Post"}</p>
                     <label>{"Comment"}</label>
                     <input type="textarea"
@@ -140,8 +136,8 @@ impl Component for Post {
                         min=0
                         max=5
                         oninput=update_rating/>
-                    <button type="submit">{"Rate"}</button>
-                </fieldset>
+                    <button type="submit" class="btn btn-outline-primary">{"Rate"}</button>
+                </div>
             </form>
             {if self.error {html!{<span>{"Must login to rate"}</span>}} else{ html!{}}}
             </div>

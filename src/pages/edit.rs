@@ -117,7 +117,7 @@ impl Component for Edit {
                             value=&self.description
                             required=true
                             oninput=set_desc/><br/>
-                       <button type="submit">{"Update"}</button>
+                       <button type="submit" class="btn btn-primary">{"Update"}</button>
                     </fieldset>
                 </form>
             </>

@@ -86,7 +86,7 @@ impl Component for SignUp {
         });
         let oninvalid = self.link.callback(|_| Msg::InvalidInput);
         html! {
-            <div>
+            <div class="border border-dark signup">
                 <br/>
                 <p>{"Signup"}</p>
                 {if self.error {html!{<p>{"Invalid username or password\nUsername cannot contain special characters"}</p>}} else {html!{}}}
@@ -97,11 +97,13 @@ impl Component for SignUp {
                         value=&self.username required=true
                         oninput=update_username
                         oninvalid=oninvalid/>
+                    <br/>
                     <label>{"Password:"}</label>
                     <input type="password"
                         value=&self.password required=true
                         oninput=update_password/>
-                    <button type="submit">{"SignUp"}</button>
+                    <br/>
+                    <button type="submit" class="btn btn-primary">{"SignUp"}</button>
                     </fieldset>
                 </form>
             </div>

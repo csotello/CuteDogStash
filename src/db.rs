@@ -59,7 +59,7 @@ impl Data {
         }
         true
     }
-    /// Create a new user 
+    /// Create a new user
     pub fn create_user(&mut self, username: String, password: String) {
         let id = random::<u64>();
         let hash = hash(password, 4).unwrap();
@@ -69,7 +69,7 @@ impl Data {
             password: hash,
         });
     }
-    /// Login user by traversing and returning a copy 
+    /// Login user by traversing and returning a copy
     pub fn login(&self, username: String, password: String) -> Option<User> {
         for user in self.users.iter() {
             if user.username == username && verify(password.clone(), &user.password).unwrap() {
