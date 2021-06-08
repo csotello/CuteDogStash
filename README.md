@@ -30,16 +30,16 @@ Here Post is the component with properties: db, callback, and user.
 In this case there is a reference to the database, a callback function to create the post, and information on the current user.
 The component trait defines four functions that must be implemented:
 ```rust
-fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self
-fn update(&mut self, msg: Self::Message) -> ShouldRender
-fn change(&mut self, props: Self::Properties) -> ShouldRender
-fn view(&self) -> Html
+fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {}
+fn update(&mut self, msg: Self::Message) -> ShouldRender {}
+fn change(&mut self, props: Self::Properties) -> ShouldRender {}
+fn view(&self) -> Html {}
 ```
 When a component first loads the create function is called and the initial values can be setup. Afterward, update handles messages which are used as signals for things like click events and change is used to update the component when its props change. The actual html corresponding to each component is defined in the view function. Using a Yew macro, rust and html can be used together to create reusable code compatible with data structures like vectors.   
 ## How It Went
 Overall, the project went well. I didn't have any issues with things not working although I did stray from my original design in some ways. My original design had three vectors with expected relational logic to act as the database but I opted for nested vectors. I learned a lot about working with vectors and structs in rust throughout this project as I worked with data and implemented the mentioned Yew traits.     
 
-## [LICENSE]("LICENSE")
+## [LICENSE](LICENSE)
 MIT License
 
 Copyright (c) 2021 Carlos Sotello
