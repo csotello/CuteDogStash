@@ -88,6 +88,7 @@ impl Component for Account {
 
     fn view(&self) -> Html {
         if let Some(user) = &self.props.user {
+            // Create each post tag 
             let map_post = |post: &db::Post| {
                 let rate = self.link.callback(|(post_id, author, stars, comment)| {
                     Msg::Rate(post_id, author, stars, comment)

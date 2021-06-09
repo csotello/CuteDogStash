@@ -4,7 +4,7 @@ pub enum Msg {
     SetComment(String),
     SetRating(String),
     Edit,
-    Submit,
+    Rate,
     DeletePost,
 }
 
@@ -48,7 +48,7 @@ impl Component for Post {
                 let rating: u8 = rating.parse().unwrap();
                 self.rating = rating;
             }
-            Msg::Submit => {
+            Msg::Rate => {
                 if let Some(user) = &self.props.user {
                     self.error = false;
                     self.props.rate.emit((
@@ -82,7 +82,7 @@ impl Component for Post {
         let update_rating = self.link.callback(|e: InputData| Msg::SetRating(e.value));
         let submit = self.link.callback(|e: FocusEvent| {
             e.prevent_default();
-            Msg::Submit
+            Msg::Rate
         });
         let map_rating = |rating: &Rating| {
             html! {
@@ -94,7 +94,7 @@ impl Component for Post {
             }
         };
         let delete = self.link.callback(|_| Msg::DeletePost);
-        let owned = {
+        let owned = { // If post is owned by current user
             if let Some(user) = &self.props.user {
                 user.username == self.props.post.author
             } else {

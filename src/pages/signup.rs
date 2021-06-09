@@ -12,8 +12,6 @@ pub enum Msg {
 }
 
 pub struct SignUp {
-    // `ComponentLink` is like a reference to a component.
-    // It can be used to send messages to the component
     password: String,
     username: String,
     error: bool,

@@ -28,13 +28,13 @@ pub enum Msg {
     Logout,
 }
 //Base App which controls routing
-#[allow(dead_code)] //router_agent considered dead code
+#[allow(dead_code)] //router_agent considered dead code because it is bridged and never called elsewhere
 struct App {
     link: ComponentLink<Self>,
     db: Data,           //Database
     user: Option<User>, //Current user
     error: bool,
-    post_id: u64,
+    post_id: u64, // Id of post to edit
     storage: StorageService, //StorageService to persist in localstorage
     route: Option<Routes>,   //Current Route
     router_agent: Box<dyn Bridge<RouteAgent>>, //RouterAgent to switch routes
@@ -45,12 +45,13 @@ impl Component for App {
     type Properties = ();
 
     fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let router_agent = RouteAgent::bridge(link.callback(Msg::SetRoute));
+        let router_agent = RouteAgent::bridge(link.callback(Msg::SetRoute)); // Bridge router_agent to Routes 
         let route_service: RouteService = RouteService::new();
-        let route = route_service.get_route();
-        let storage = StorageService::new(Area::Local).unwrap();
+        let route = route_service.get_route(); // Get initial route
+        let mut storage = StorageService::new(Area::Local).unwrap(); // Connect to localstorage
         let Json(data) = storage.restore(KEY);
-        let db = data.unwrap_or_else(|_| Data::default());
+        let db = data.unwrap_or_else(|_| Data::default());// Load inital data
+        storage.store(KEY, Json(&db)); // Creates key if it does not exist
         Self {
             link,
             db,
@@ -65,13 +66,16 @@ impl Component for App {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
+            // Create a new user in the database
             Msg::SignUp(username, password) => {
                 self.db.create_user(username, password);
                 self.storage.store(KEY, Json(&self.db));
             }
+            // Set current route 
             Msg::SetRoute(route) => {
                 self.route = Routes::switch(route);
             }
+            // Retrieve user information from database
             Msg::Login(username, password) => match self.db.login(username, password) {
                 Some(user) => {
                     self.user = Some(User {
@@ -88,31 +92,38 @@ impl Component for App {
             Msg::Logout => {
                 self.user = None;
             }
+            // Create a new post
             Msg::CreatePost(author, description, image) => {
                 self.db.create_post(author, description, image);
                 self.storage.store(KEY, Json(&self.db));
             }
+            // Create a new rating
             Msg::Rate(id, author, stars, comment) => {
                 self.db.create_rating(id, author, stars, comment);
                 self.storage.store(KEY, Json(&self.db));
             }
+            // Delete an account
             Msg::DeleteAccount(username) => {
                 self.db.delete_account(username);
                 self.user = None;
                 self.storage.store(KEY, Json(&self.db));
             }
+            // Delete a post
             Msg::DeletePost(id) => {
                 self.db.delete_post(id);
                 self.storage.store(KEY, Json(&self.db));
             }
+            // Update account information
             Msg::UpdateAccount(id, username, password) => {
                 self.db.update_account(id, username, password);
                 self.storage.store(KEY, Json(&self.db));
             }
+            // Switch to edit page
             Msg::EditPost(id) => {
                 self.post_id = id;
                 self.route = Some(Routes::Edit);
             }
+            // Update post information
             Msg::UpdatePost(id, desc, img) => {
                 self.db.update_post(id, desc, img);
                 self.storage.store(KEY, Json(&self.db));
@@ -139,13 +150,13 @@ impl Component for App {
 }
 
 impl App {
-    /// Match each route to corresponding page
+    /// Map each route to corresponding page
     fn map_route(&self, route: Option<&Routes>, user: Option<&User>) -> Html {
         let rate = self.link.callback(|(post_id, author, stars, comment)| {
             Msg::Rate(post_id, author, stars, comment)
         });
         match user {
-            Some(_user) => {
+            Some(_user) => { // If user is logged in
                 let create_post = self.link.callback(|(author, description, image)| {
                     Msg::CreatePost(author, description, image)
                 });
@@ -190,7 +201,7 @@ impl App {
                     html! {<p>{"Error"}</p>}
                 }
             }
-            None => {
+            None => { // User is logged out
                 let signup = self
                     .link
                     .callback(|(username, password)| Msg::SignUp(username, password));

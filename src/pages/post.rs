@@ -27,8 +27,8 @@ pub struct Post {
     router_agent: Box<dyn Bridge<RouteAgent>>,
     link: ComponentLink<Self>,
     description: String,
-    file: String,
-    task: Vec<ReaderTask>,
+    file: String, // FileData as string
+    task: Vec<ReaderTask>,// Task reads the file 
     error: bool,
     props: Props,
 }
@@ -39,7 +39,7 @@ impl Component for Post {
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
-            router_agent: RouteAgent::bridge(link.callback(|_| Msg::None)),
+            router_agent: RouteAgent::bridge(link.callback(|_| Msg::None)), //RouteAgent must take the same type but no new functionality
             link,
             description: String::new(),
             file: String::new(),
@@ -57,6 +57,7 @@ impl Component for Post {
             Msg::SetFile(file) => {
                 self.file = base64::encode(file.content);
             }
+            // Use ReaderService to read file
             Msg::LoadFile(file) => {
                 let callback = self.link.callback(Msg::SetFile);
                 let mut reader = ReaderService::new();
@@ -66,6 +67,7 @@ impl Component for Post {
             Msg::ResetFile => {
                 self.file = "".to_string();
             }
+            // Create post and switch to home page
             Msg::Submit => match &self.props.user {
                 Some(user) => {
                     self.props.callback.emit((
@@ -93,9 +95,13 @@ impl Component for Post {
         let update_description = self
             .link
             .callback(|e: InputData| Msg::SetDescription(e.value));
-        let onsubmit = self.link.callback(|e: FocusEvent| {
+        let submit = self.link.callback(|e: FocusEvent| {
             e.prevent_default();
             Msg::Submit
+        });
+        let handle_file = self.link.callback(move |data: ChangeData| match data {
+            ChangeData::Files(files) => Msg::LoadFile(files.get(0).unwrap()),
+            _ => Msg::ResetFile,
         });
         if self.error {
             html! {<p>{"Error"}</p>}
@@ -104,18 +110,11 @@ impl Component for Post {
                 <div class="border border-dark create">
                     <br/>
                     <p>{"Create Post"}</p>
-                    <form onsubmit=onsubmit>
+                    <form onsubmit=submit>
                         <fieldset>
                             <label>{"Picture:"}</label>
                             <img src="data:image/*;base64, ".to_string() + &self.file alt=""/><br/>
-                            <input type="file" accept="image/*" onchange=self.link.callback(move |data: ChangeData| {
-                                match data {
-                                    ChangeData::Files(files) => {
-                                        Msg::LoadFile(files.get(0).unwrap())
-                                    }
-                                    _ => Msg::ResetFile
-                                }
-                            }) /><br/>
+                            <input type="file" accept="image/*" onchange=handle_file /><br/>
                             <label>{"Description:"}</label>
                             <input type="textarea"
                                 rows=4

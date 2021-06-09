@@ -56,6 +56,7 @@ impl Component for Navbar {
     }
 }
 impl Navbar {
+    /// Show links to logged out user
     fn login_links(&self) -> Html {
         html! {
             <ul >
@@ -77,6 +78,7 @@ impl Navbar {
             </ul>
         }
     }
+    /// Show links for logged in user
     fn user_links(&self) -> Html {
         let logout = self.link.callback(move |e: MouseEvent| {
             e.prevent_default();

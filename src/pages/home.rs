@@ -19,8 +19,6 @@ pub struct Props {
 }
 
 pub struct Home {
-    // `ComponentLink` is like a reference to a component.
-    // It can be used to send messages to the component
     link: ComponentLink<Self>,
     props: Props,
 }
@@ -54,6 +52,7 @@ impl Component for Home {
     }
 
     fn view(&self) -> Html {
+        // Create each post tag
         let map_post = |post: &db::Post| {
             let rate = self.link.callback(|(post_id, author, stars, comment)| {
                 Msg::Rate(post_id, author, stars, comment)
