@@ -2,9 +2,10 @@
 ##### by Carlos Sotello
 
 ## CuteDogStash
-CuteDogStash is an open source single-page application for storing posts of dogs. 
-Using [Yew](https://github.com/yewstack/yew) and [Trunk](https://github.com/thedodd/trunk), rust code will be bundled into HTML, JavaScript, and WebAssembly to run in browsers. 
-Users will be able to post pictures and descriptions which will persist through local storage. 
+CuteDogStash is an open source single-page application for storing photos of dogs. 
+Using [Yew](https://github.com/yewstack/yew) and [Trunk](https://github.com/thedodd/trunk), rust code will be bundled into HTML, JavaScript, and WebAssembly to run in browsers. Ideally this is a good first step toward providing a family centered site which can be used on a shared computer.  
+
+Users will be able to post pictures and descriptions which will persist through local storage. The sites main page displays all of the stored posts with links to create an account and sign in. Once users have an account additional links will display allowing them to create posts, view posts by account, and update their account info. When logged in posts by the user's account will also display edit and delete buttons which will update or remove the post from the database and update local storage.  
 
 ## Setup
 First, ensure [Rust](https://www.rust-lang.org/tools/install) is installed. 
@@ -36,8 +37,9 @@ fn change(&mut self, props: Self::Properties) -> ShouldRender {}
 fn view(&self) -> Html {}
 ```
 When a component first loads the create function is called and the initial values can be setup. Afterward, update handles messages which are used as signals for things like click events and change is used to update the component when its props change. The actual html corresponding to each component is defined in the view function. Using a Yew macro, rust and html can be used together to create reusable code compatible with data structures like vectors.   
+
 ## How It Went
-Overall, the project went well. I didn't have any issues with things not working although I did stray from my original design in some ways. My original design had three vectors with expected relational logic to act as the database but I opted for nested vectors. I learned a lot about working with vectors and structs in rust throughout this project as I worked with data and implemented the mentioned Yew traits.     
+Overall, the project went well. I didn't have any issues with things not working although I did stray from my original design in some ways. My original design had three vectors with expected relational logic to act as the database but I opted for nested vectors. I learned a lot about working with vectors and structs in rust throughout this project as I worked with data and implemented the mentioned Yew traits. In the future I would like to improve the styling more, especially for things like the rating, as well as add additional features like connecting to third party sites.     
 
 ## [LICENSE](LICENSE)
 MIT License

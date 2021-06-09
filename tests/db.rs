@@ -16,14 +16,14 @@ fn post_test() {
     assert_eq!(posts[0].author, "me".to_string());
     let post = db.get_post(id);
     assert_eq!(post.is_some(), true);
-    if let Some(post) = post{
+    if let Some(post) = post {
         assert_eq!(post.author, "me".to_string());
     }
     db.update_post(id, "updated".to_string(), "123".to_string());
     let item = &db.posts[0];
     assert_eq!(item.author, "me".to_string());
     assert_eq!(item.description, "updated".to_string());
-    db.create_rating(id, "you".to_string(), 2,"great".to_string());
+    db.create_rating(id, "you".to_string(), 2, "great".to_string());
     let item = &db.posts[0];
     assert_eq!(item.ratings.is_empty(), false);
     let rating = &item.ratings[0];
@@ -49,5 +49,5 @@ fn user_test() {
     let user = &db.users[0];
     assert_eq!(user.username.clone(), "new_name".to_string());
     db.delete_account("new_name".to_string());
-    assert_eq!(db.users.is_empty(),true);
+    assert_eq!(db.users.is_empty(), true);
 }
