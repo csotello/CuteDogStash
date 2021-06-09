@@ -119,7 +119,7 @@ impl Component for Post {
                             <input type="textarea"
                                 rows=4
                                 cols=4
-                                pattern="[A-Za-z0-9!@#$%^&*(){}/|:;-_<>.,=+]*"
+                                pattern="[A-Za-z0-9]@#$%^&*(){}/|:;-_<>.,=+!*"
                                 value=&self.description
                                 required=true
                                 oninput=update_description/><br/>

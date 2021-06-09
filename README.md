@@ -18,7 +18,8 @@ The following command will build the site and output a link.
 ```
 trunk serve
 ```
-
+The home page will start out as a blank page with links. Some initial values have been provided in [init_vals.txt](init_vals.txt). Using chrome you can open developer tools(Ctrl-Shift-i) and navigate to the Application tab. Under storage and local storage should be the link to the local server. From there you can copy and paste the text in init_vals.txt to the value section for the CuteDogStash_KEY then reload the page. The screenshot below shows the section in developer tools and the initial post. There are three accounts with the same username and password: mom, dad, and son. 
+![Image of home page](images/home_page.jpg) 
 ## Testing 
 Within the tests directory is a test file for the database. There are two main tests for basic CRUD functionality related to users and posts. These tests ensure that the data is stored and updated as expected by the main code. 
 
