@@ -94,7 +94,8 @@ impl Component for Post {
             }
         };
         let delete = self.link.callback(|_| Msg::DeletePost);
-        let owned = { // If post is owned by current user
+        let owned = {
+            // If post is owned by current user
             if let Some(user) = &self.props.user {
                 user.username == self.props.post.author
             } else {

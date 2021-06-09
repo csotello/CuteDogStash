@@ -50,7 +50,8 @@ impl Component for UpdateAccount {
                 self.password = password;
             }
             Msg::Submit => {
-                if self.props.db.check_username(self.username.clone()) { // If username does not exist
+                if self.props.db.check_username(self.username.clone()) {
+                    // If username does not exist
                     let user = self.props.user.as_ref().unwrap(); // User has to be logged in to access this page
                     self.props
                         .update

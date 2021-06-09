@@ -27,8 +27,8 @@ pub struct Post {
     router_agent: Box<dyn Bridge<RouteAgent>>,
     link: ComponentLink<Self>,
     description: String,
-    file: String, // FileData as string
-    task: Vec<ReaderTask>,// Task reads the file 
+    file: String,          // FileData as string
+    task: Vec<ReaderTask>, // Task reads the file
     error: bool,
     props: Props,
 }

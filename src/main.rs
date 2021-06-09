@@ -34,9 +34,9 @@ struct App {
     db: Data,           //Database
     user: Option<User>, //Current user
     error: bool,
-    post_id: u64, // Id of post to edit
-    storage: StorageService, //StorageService to persist in localstorage
-    route: Option<Routes>,   //Current Route
+    post_id: u64,                              // Id of post to edit
+    storage: StorageService,                   //StorageService to persist in localstorage
+    route: Option<Routes>,                     //Current Route
     router_agent: Box<dyn Bridge<RouteAgent>>, //RouterAgent to switch routes
 }
 
@@ -45,12 +45,12 @@ impl Component for App {
     type Properties = ();
 
     fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let router_agent = RouteAgent::bridge(link.callback(Msg::SetRoute)); // Bridge router_agent to Routes 
+        let router_agent = RouteAgent::bridge(link.callback(Msg::SetRoute)); // Bridge router_agent to Routes
         let route_service: RouteService = RouteService::new();
         let route = route_service.get_route(); // Get initial route
         let mut storage = StorageService::new(Area::Local).unwrap(); // Connect to localstorage
         let Json(data) = storage.restore(KEY);
-        let db = data.unwrap_or_else(|_| Data::default());// Load inital data
+        let db = data.unwrap_or_else(|_| Data::default()); // Load inital data
         storage.store(KEY, Json(&db)); // Creates key if it does not exist
         Self {
             link,
@@ -71,7 +71,7 @@ impl Component for App {
                 self.db.create_user(username, password);
                 self.storage.store(KEY, Json(&self.db));
             }
-            // Set current route 
+            // Set current route
             Msg::SetRoute(route) => {
                 self.route = Routes::switch(route);
             }
@@ -156,7 +156,8 @@ impl App {
             Msg::Rate(post_id, author, stars, comment)
         });
         match user {
-            Some(_user) => { // If user is logged in
+            Some(_user) => {
+                // If user is logged in
                 let create_post = self.link.callback(|(author, description, image)| {
                     Msg::CreatePost(author, description, image)
                 });
@@ -201,7 +202,8 @@ impl App {
                     html! {<p>{"Error"}</p>}
                 }
             }
-            None => { // User is logged out
+            None => {
+                // User is logged out
                 let signup = self
                     .link
                     .callback(|(username, password)| Msg::SignUp(username, password));
