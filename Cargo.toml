@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 yew = "0.17"
 yew-router = "0.14.0"
-wasm-bindgen = "0.2.73"
+wasm-bindgen = "0.2.74"
 base64 = "0.13.0"
 rand = { version = "0.7.3", features = ["wasm-bindgen"] }
 bcrypt = "0.8"
