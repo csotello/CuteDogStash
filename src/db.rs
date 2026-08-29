@@ -8,6 +8,30 @@ pub struct User {
     pub username: String,
     pub password: String,
 }
+impl User {
+    pub fn default() -> User {
+        User {
+            id: 0,
+            username: "".to_string(),
+            password: "".to_string(),
+        }
+    }
+    pub fn clone_into(&self, dest: &mut Self) {
+        dest.id = self.id;
+        dest.username = self.username.clone();
+        dest.password = self.password.clone();
+    }
+
+    pub fn implicit_clone(&self) -> User {
+        let mut dest = User::default();
+        self.clone_into(&mut dest);
+        dest
+    }
+
+    pub fn into_prop_values(self) -> Vec<String> {
+        vec![self.id.to_string(), self.username, self.password]
+    }
+}
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Rating {
     pub id: u64,
@@ -23,6 +47,42 @@ pub struct Post {
     pub ratings: Vec<Rating>,
     pub description: String,
     pub image: String,
+}
+
+impl Post {
+    pub fn default() -> Post {
+        Post {
+            id: 0,
+            author: "".to_string(),
+            ratings: vec![],
+            description: "".to_string(),
+            image: "".to_string(),
+        }
+    }
+    pub fn clone_into(&self, dest: &mut Self) {
+        dest.id = self.id;
+        dest.author = self.author.clone();
+        dest.ratings = self.ratings.clone();
+        dest.description = self.description.clone();
+        dest.image = self.image.clone();
+    }
+    pub fn implicit_clone(&self) -> Post {
+        let mut dest = Post::default();
+        dest.id = self.id;
+        dest.author = self.author.clone();
+        dest.ratings = self.ratings.clone();
+        dest.description = self.description.clone();
+        dest.image = self.image.clone();
+        dest
+    }
+    pub fn into_prop_values(self) -> Vec<String> {
+        vec![
+            self.id.to_string(),
+            self.author,
+            self.description,
+            self.image,
+        ]
+    }
 }
 #[derive(Clone, Deserialize, Serialize)]
 pub struct Data {
