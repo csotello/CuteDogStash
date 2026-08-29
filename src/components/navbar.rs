@@ -13,7 +13,7 @@ pub struct Props {
 }
 
 pub struct Navbar {
-    link: ComponentLink<Self>,
+    link: Link<Routes>,
     props: Props,
 }
 
@@ -21,11 +21,11 @@ impl Component for Navbar {
     type Message = Msg;
     type Properties = Props;
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(props: Self::Properties, link: Link<Routes>) -> Self {
         Self { link, props }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, msg: Self::Message) -> bool {
         match msg {
             Msg::Logout => {
                 self.props.logout.emit(());
@@ -34,10 +34,10 @@ impl Component for Navbar {
         true
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props = props;
-        true
-    }
+    // fn change(&mut self, props: Self::Properties) -> ShouldRender {
+    //     self.props = props;
+    //     true
+    // }
 
     fn view(&self) -> Html {
         html! {
@@ -45,7 +45,7 @@ impl Component for Navbar {
             <nav>
             {
                 match &self.props.user {
-                    Some(user) => self.user_links(),
+                    Some(_user) => self.user_links(),
                     None => self.login_links()
                 }
             }
@@ -61,19 +61,19 @@ impl Navbar {
         html! {
             <ul >
                 <li>
-                    <RouterAnchor<Routes> route=Routes::Home>
+                    <Link<Routes> to={Routes::Home}>
                     { "Home" }
-                    </RouterAnchor<Routes>>
+                    </Link<Routes>>
                 </li>
                 <li>
-                    <RouterAnchor<Routes> route=Routes::SignUp>
+                    <Link<Routes> to={Routes::SignUp}>
                     { "Signup" }
-                    </RouterAnchor<Routes>>
+                    </Link<Routes>>
                 </li>
                 <li>
-                    <RouterAnchor<Routes> route=Routes::Login>
+                    <Link<Routes> to={Routes::Login}>
                     { "Login" }
-                    </RouterAnchor<Routes>>
+                    </Link<Routes>>
                 </li>
             </ul>
         }
@@ -87,27 +87,27 @@ impl Navbar {
         html! {
             <ul>
                 <li>
-                    <RouterAnchor<Routes> route=Routes::Home>
+                    <Link<Routes> to={Routes::Home}>
                     { "Home" }
-                    </RouterAnchor<Routes>>
+                    </Link<Routes>>
                 </li>
                 <li>
-                    <RouterAnchor<Routes> route=Routes::Account>
+                    <Link<Routes> to={Routes::Account}>
                     { "Account" }
-                    </RouterAnchor<Routes>>
+                    </Link<Routes>>
                 </li>
                 <li>
-                    <RouterAnchor<Routes> route=Routes::UpdateAccount>
+                    <Link<Routes> to={Routes::UpdateAccount}>
                     { "Update Account" }
-                    </RouterAnchor<Routes>>
+                    </Link<Routes>>
                 </li>
                 <li>
-                    <RouterAnchor<Routes> route=Routes::Post>
+                    <Link<Routes> to={Routes::Post}>
                     { "Create Post" }
-                    </RouterAnchor<Routes>>
+                    </Link<Routes>>
                 </li>
                 <li>
-                    <a onclick=logout style="color: rgb(85, 26, 139); cursor: pointer;text-decoration-line: underline;">{"Logout"}</a>
+                    <a onclick={logout} style="color: rgb(85, 26, 139); cursor: pointer;text-decoration-line: underline;">{"Logout"}</a>
                 </li>
         </ul>
         }
