@@ -1,96 +1,69 @@
 use crate::Routes;
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use yew_router::agent::RouteRequest::ChangeRoute;
-use yew_router::prelude::RouteAgent;
-pub enum Msg {
-    SetUsername(String),
-    SetPassword(String),
-    None,
-    Submit,
-}
-#[derive(Properties, Clone)]
+use yew_router::prelude::use_navigator;
+
+#[derive(Properties, Clone, PartialEq)]
 pub struct Props {
     pub callback: Callback<(String, String)>,
 }
-pub struct Login {
-    router_agent: Box<dyn Bridge<RouteAgent>>,
-    link: ComponentLink<Self>,
-    username: String,
-    password: String,
-    props: Props,
-}
 
-impl Component for Login {
-    type Message = Msg;
-    type Properties = Props;
+#[function_component(Login)]
+pub fn login(props: &Props) -> Html {
+    let username = use_state(String::new);
+    let password = use_state(String::new);
+    let props = props.clone();
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self {
-            router_agent: RouteAgent::bridge(link.callback(|_| Msg::None)),
-            link,
-            username: String::new(),
-            password: String::new(),
-            props,
-        }
-    }
+    let update_username = {
+        let username = username.clone();
+        Callback::from(move |e: InputEvent| {
+            let input: HtmlInputElement = e.target_unchecked_into();
+            let value = input.value();
+            username.set(value);
+        })
+    };
+    let update_password = {
+        let password = password.clone();
+        Callback::from(move |e: InputEvent| {
+            let input: HtmlInputElement = e.target_unchecked_into();
+            let value = input.value();
+            password.set(value);
+        })
+    };
+    let onsubmit = {
+        let username = username.clone();
+        let password = password.clone();
+        let navigator = use_navigator().unwrap();
+        Callback::from(move |e: SubmitEvent| {
+            e.prevent_default();
+            let username = username.to_string();
+            let password = password.to_string();
+            props.callback.emit((username, password));
+            navigator.push(&Routes::Home);
+        })
+    };
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        match msg {
-            Msg::SetUsername(username) => {
-                self.username = username;
-            }
-            Msg::SetPassword(password) => {
-                self.password = password;
-            }
-            Msg::Submit => {
-                self.props
-                    .callback
-                    .emit((self.username.clone(), self.password.clone()));
-                self.router_agent.send(ChangeRoute(Routes::Home.into()));
-            }
-            _ => {}
-        }
-        true
-    }
-
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props = props;
-        true
-    }
-
-    fn view(&self) -> Html {
-        let update_username = self
-            .link
-            .callback(|event: InputData| Msg::SetUsername(event.value));
-        let update_password = self
-            .link
-            .callback(|event: InputData| Msg::SetPassword(event.value));
-        let onsubmit = self.link.callback(|event: FocusEvent| {
-            event.prevent_default();
-            Msg::Submit
-        });
-        html! {
-            <div class="border border-dark login">
-                <br/>
-                <p>{"Login"}</p>
-                <form onsubmit=onsubmit>
-                    <fieldset>
-                        <label>{"Username:"}</label>
-                        <input type="text" pattern="[A-Za-z0-9]{1,10}"
-                            value=&self.username
-                            required=true
-                            oninput=update_username/>
-                        <br/>
-                        <label>{"Password:"}</label>
-                        <input type="password"
-                            value=&self.password
-                            required=true
-                            oninput=update_password/>
-                        <br/>
-                        <button type="submit" class="btn btn-primary">{"Login"}</button>
-                    </fieldset>
-                </form>
-            </div>
-        }
+    html! {
+        <div class="border border-dark login">
+            <br/>
+            <p>{"Login"}</p>
+            <form onsubmit={onsubmit}>
+                <fieldset>
+                    <label>{"Username:"}</label>
+                    <input type="text" pattern="[A-Za-z0-9]{1,10}"
+                        value={username.to_string()}
+                        required=true
+                        oninput={update_username}/>
+                    <br/>
+                    <label>{"Password:"}</label>
+                    <input type="password"
+                        value={password.to_string()}
+                        required=true
+                        oninput={update_password}/>
+                    <br/>
+                    <button type="submit" class="btn btn-primary">{"Login"}</button>
+                </fieldset>
+            </form>
+        </div>
     }
 }
