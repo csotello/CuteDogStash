@@ -1,147 +1,118 @@
 use db::*;
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
-pub enum Msg {
-    SetComment(String),
-    SetRating(String),
-    Edit,
-    Rate,
-    DeletePost,
-}
 
-#[derive(Properties, Clone)]
+#[derive(Properties, Clone, PartialEq)]
 pub struct Props {
     pub post: db::Post,
-    pub rate: Callback<(u64, String, u8, String)>,
-    pub edit: Callback<u64>,
-    pub delete: Callback<u64>,
+    pub rate: Callback<(u64, String, u8, String), ()>,
+    pub edit: Callback<u64, ()>,
+    pub delete: Callback<u64, ()>,
     pub user: Option<User>,
 }
 
-pub struct Post {
-    link: ComponentLink<Self>,
-    props: Props,
-    comment: String,
-    rating: u8,
-    error: bool,
-}
+#[function_component(Post)]
+pub fn post(props: &Props) -> Html {
+    let comment = use_state(String::new);
+    let rating = use_state(|| 0_u8);
+    let error = use_state(|| false);
 
-impl Component for Post {
-    type Message = Msg;
-    type Properties = Props;
+    let update_comment = {
+        let comment = comment.clone();
+        Callback::from(move |e: InputEvent| {
+            let value = e
+                .target_dyn_into::<HtmlInputElement>()
+                .map(|input| input.value())
+                .unwrap_or_default();
+            comment.set(value);
+        })
+    };
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self {
-            link,
-            props,
-            comment: String::new(),
-            rating: 0,
-            error: false,
-        }
-    }
+    let update_rating = {
+        let rating = rating.clone();
+        Callback::from(move |e: InputEvent| {
+            let value = e
+                .target_dyn_into::<HtmlInputElement>()
+                .map(|input| input.value())
+                .unwrap_or_default();
+            rating.set(value.parse().unwrap());
+        })
+    };
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        match msg {
-            Msg::SetComment(comment) => {
-                self.comment = comment;
-            }
-            Msg::SetRating(rating) => {
-                let rating: u8 = rating.parse().unwrap();
-                self.rating = rating;
-            }
-            Msg::Rate => {
-                if let Some(user) = &self.props.user {
-                    self.error = false;
-                    self.props.rate.emit((
-                        self.props.post.id,
-                        user.username.clone(),
-                        self.rating,
-                        self.comment.clone(),
-                    ))
-                } else {
-                    self.error = true;
-                }
-            }
-            Msg::DeletePost => {
-                let id = self.props.post.id;
-                self.props.delete.emit(id);
-            }
-            Msg::Edit => {
-                self.props.edit.emit(self.props.post.id);
-            }
-        }
-        true
-    }
-
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props = props;
-        true
-    }
-
-    fn view(&self) -> Html {
-        let update_comment = self.link.callback(|e: InputData| Msg::SetComment(e.value));
-        let update_rating = self.link.callback(|e: InputData| Msg::SetRating(e.value));
-        let submit = self.link.callback(|e: FocusEvent| {
+    let submit = {
+        let comment = comment.clone();
+        let rating = rating.clone();
+        let error = error.clone();
+        let rate = props.rate.clone();
+        let user = props.user.clone();
+        let post_id = props.post.id;
+        Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            Msg::Rate
-        });
-        let map_rating = |rating: &Rating| {
-            html! {
-                <div class="rating border border-dark">
-                    <span>{"Author:"}{&rating.author}</span><br/>
-                    <span>{"Rating:"}{&rating.stars}{"/5"}</span>
-                    <p>{&rating.comment}</p>
-                </div>
-            }
-        };
-        let delete = self.link.callback(|_| Msg::DeletePost);
-        let owned = {
-            // If post is owned by current user
-            if let Some(user) = &self.props.user {
-                user.username == self.props.post.author
+            if let Some(user) = &user {
+                error.set(false);
+                rate.emit((post_id, user.username.clone(), *rating, (*comment).clone()));
             } else {
-                false
+                error.set(true);
             }
-        };
-        let edit = self.link.callback(|_| Msg::Edit);
-        html! {
-            <div class="post">
+        })
+    };
+
+    let delete = {
+        let delete = props.delete.clone();
+        let post_id = props.post.id;
+        Callback::from(move |_| delete.emit(post_id))
+    };
+
+    let edit = {
+        let edit = props.edit.clone();
+        let post_id = props.post.id;
+        Callback::from(move |_| edit.emit(post_id))
+    };
+
+    let owned = props
+        .user
+        .as_ref()
+        .map(|user| user.username == props.post.author)
+        .unwrap_or(false);
+
+    html! {
+        <div class="post">
             <div class="card border-dark">
-            <img class="card-img-top" src="data:image/*;base64, ".to_string() + &self.props.post.image alt=""/><br/>
-            <div class="card-body">
-                <span>{"Author:"}{&self.props.post.author}</span><br/>
-                <p>{"Description:"}{&self.props.post.description}</p>
-                {if owned{
-                    html!{
-                        <>
-                            <button onclick=edit class="btn btn-primary">{"Edit Post"}</button>
-                            <button onclick=delete class="btn btn-secondary">{"Delete Post"}</button>
-                        </>
-                    }
-                } else{html!{}}}
-                <p>{"Ratings:"}</p>
-                {for self.props.post.ratings.iter().map(map_rating)}
-            </div>
-            </div>
-            <form onsubmit=submit>
-                <div class="mb-3">
-                    <p>{"Rate Post"}</p>
-                    <label>{"Comment"}</label>
-                    <input type="textarea"
-                        rows=4
-                        cols=4
-                        required=true
-                        value=&self.comment
-                        oninput=update_comment/>
-                    <label>{"Rating"}</label>
-                    <input type="number"
-                        min=0
-                        max=5
-                        oninput=update_rating/>
-                    <button type="submit" class="btn btn-outline-primary">{"Rate"}</button>
+                <img class="card-img-top" src={"data:image/*;base64, ".to_string() + &props.post.image} alt=""/><br/>
+                <div class="card-body">
+                    <span>{"Author:"}{&props.post.author}</span><br/>
+                    <p>{"Description:"}{&props.post.description}</p>
+                    {if owned {
+                        html! {
+                            <>
+                                <button onclick={edit} class="btn btn-primary">{"Edit Post"}</button>
+                                <button onclick={delete} class="btn btn-secondary">{"Delete Post"}</button>
+                            </>
+                        }
+                    } else {
+                        html! {}
+                    }}
+                    <p>{"Ratings:"}</p>
+                    {for props.post.ratings.iter().map(|rating| html! {
+                        <div class="rating border border-dark">
+                            <span>{"Author:"}{&rating.author}</span><br/>
+                            <span>{"Rating:"}{&rating.stars}{"/5"}</span>
+                            <p>{&rating.comment}</p>
+                        </div>
+                    })}
                 </div>
-            </form>
-            {if self.error {html!{<span>{"Must login to rate"}</span>}} else{ html!{}}}
             </div>
-        }
+
+            <div class="mb-3">
+                <p>{"Rate Post"}</p>
+                <label>{"Comment"}</label>
+                <input type="textarea" rows=4 cols=4 required=true value={(*comment).clone()} oninput={update_comment}/>
+                <label>{"Rating"}</label>
+                <input type="number" min=0 max=5 oninput={update_rating}/>
+                <button type="submit" onclick={submit} class="btn btn-outline-primary">{"Rate"}</button>
+            </div>
+
+            {if *error { html! { <span>{"Must login to rate"}</span> } } else { html! {} }}
+        </div>
     }
 }
