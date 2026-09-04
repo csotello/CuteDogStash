@@ -1,8 +1,9 @@
 use bcrypt::{hash, verify};
+use gloo_storage::{LocalStorage, Storage};
 use rand::random;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, PartialEq)]
 pub struct User {
     pub id: u64,
     pub username: String,
@@ -32,7 +33,7 @@ impl User {
         vec![self.id.to_string(), self.username, self.password]
     }
 }
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, PartialEq)]
 pub struct Rating {
     pub id: u64,
     pub post_id: u64,
@@ -40,7 +41,7 @@ pub struct Rating {
     pub stars: u8,
     pub comment: String,
 }
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, PartialEq)]
 pub struct Post {
     pub id: u64,
     pub author: String,
@@ -84,7 +85,7 @@ impl Post {
         ]
     }
 }
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, PartialEq)]
 pub struct Data {
     pub users: Vec<User>,
     pub posts: Vec<Post>,
@@ -222,5 +223,9 @@ impl Data {
                 }
             }
         }
+    }
+    pub fn store(&self, key: &str) {
+        let string = serde_json::to_string(&self).unwrap();
+        let _ = LocalStorage::set(key, string);
     }
 }
