@@ -3,6 +3,7 @@ use crate::pages::{Account, Edit, Home, Login, Post, SignUp, UpdateAccount};
 use crate::routes::Routes;
 use crate::utils::*;
 use db::*;
+use gloo_console::log;
 use gloo_storage::{LocalStorage, Storage};
 use yew::prelude::*;
 use yew_router::prelude::*;
@@ -20,12 +21,11 @@ pub enum Msg {
     Logout,
 }
 //Base App which controls routing
-// #[allow(dead_code)] //router_agent considered dead code because it is bridged and never called elsewhere
+
 pub struct App {
     db: Data,           //Database
     user: Option<User>, //Current user
     error: bool,
-    link: yew::html::Scope<Self>,
     post_id: u64, // Id of post to edit
 }
 
@@ -35,14 +35,13 @@ impl Component for App {
 
     fn create(_ctx: &yew::Context<Self>) -> Self {
         let data = LocalStorage::get(KEY);
-        let db = data.unwrap_or_else(|_| Data::default()); // Load inital data
-        db.store(KEY); // Creates key if it does not exist
+        // log!(data.unwrap_or_else(|_| "".to_string()));
+        let db = Data::new(data.unwrap_or_else(|_| "".to_string())); // Load inital data
         Self {
             db,
             user: None,
             error: false,
             post_id: 0,
-            link: _ctx.link().clone(),
         }
     }
 
@@ -160,7 +159,7 @@ impl Component for App {
                         // If user is logged i
                         match route {
                             Routes::Home => {
-                                html! {<Home error={error.to_string()} db={db.clone()} user={user.clone()} rate={rate} delete={delete_post} edit={edit_post}/>}
+                                html! {<Home error={error} db={db.clone()} user={user.clone()} rate={rate} delete={delete_post} edit={edit_post}/>}
                             }
                             Routes::Account => {
                                 html! {<Account db={db.clone()} user={user.clone()} rate={rate} delete_account={delete_account} delete_post={delete_post} edit={edit_post}/>}
@@ -182,7 +181,7 @@ impl Component for App {
                         // User is logged out
                         match route {
                             Routes::Home => {
-                                html! {<Home error={error.to_string()} db={db.clone()} rate={rate} delete={delete_post} user={None} edit={edit_post}/>}
+                                html! {<Home error={error} db={db.clone()} rate={rate} delete={delete_post} user={None} edit={edit_post}/>}
                             }
                             Routes::Login => html! {<Login callback={login}/>},
                             Routes::SignUp => {
