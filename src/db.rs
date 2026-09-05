@@ -1,7 +1,12 @@
+use core::fmt;
+
 use bcrypt::{hash, verify};
+use gloo_console::log;
 use gloo_storage::{LocalStorage, Storage};
 use rand::random;
 use serde::{Deserialize, Serialize};
+use web_sys::console::log;
+use yew::html::ImplicitClone;
 
 #[derive(Clone, Deserialize, Serialize, PartialEq)]
 pub struct User {
@@ -98,7 +103,30 @@ impl Default for Data {
         }
     }
 }
+impl ImplicitClone for Data {
+    fn implicit_clone(&self) -> Data {
+        let mut dest = Data::default();
+        dest.users = self.users.clone();
+        dest.posts = self.posts.clone();
+        dest
+    }
+}
+impl fmt::Display for Data {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // write the data to the formatter
+        write!(f, "users:{}", self.users.len())?;
+        write!(f, "posts:{}", self.posts.len())?;
+        Ok(())
+    }
+}
 impl Data {
+    pub fn new(value: String) -> Data {
+        let data: Data = serde_json::from_str(&value).unwrap();
+        Self {
+            users: data.users,
+            posts: data.posts,
+        }
+    }
     /// Create a new post
     pub fn create_post(&mut self, author: String, description: String, image: String) {
         let id = random::<u64>();
@@ -226,6 +254,13 @@ impl Data {
     }
     pub fn store(&self, key: &str) {
         let string = serde_json::to_string(&self).unwrap();
-        let _ = LocalStorage::set(key, string);
+        log!(&string);
+        match LocalStorage::set(key, string) {
+            Ok(_) => {
+                log!("successful set".to_string());
+            }
+            Err(e) => log!(e.to_string()),
+        }
+        // let _ = LocalStorage::set(key, string);
     }
 }
