@@ -1,133 +1,115 @@
 use crate::routes::Routes;
-use crate::utils::*;
 use db::*;
-use yew::events::ChangeData;
+use gloo_console::log;
+use gloo_file::callbacks::{read_as_bytes, FileReader};
+use gloo_file::File;
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use yew::services::reader::{File, FileData, ReaderService, ReaderTask};
-use yew_router::agent::RouteRequest::ChangeRoute;
-use yew_router::prelude::RouteAgent;
+use yew_router::prelude::use_navigator;
 extern crate base64;
-pub enum Msg {
-    SetDescription(String),
-    SetFile(FileData),
-    LoadFile(File),
-    ResetFile,
-    Submit,
-    None,
-}
 
-#[derive(Properties, Clone)]
+#[derive(Properties, Clone, PartialEq)]
 pub struct Props {
     pub db: Data,
     pub callback: Callback<(String, String, String)>,
     pub user: Option<User>,
 }
+#[function_component(Post)]
+pub fn post(props: &Props) -> Html {
+    let description = use_state(String::new);
+    let file = use_state(|| None::<String>);
+    let error = use_state(|| false);
+    let reader = use_mut_ref(|| None::<FileReader>);
+    let navigator = use_navigator();
 
-pub struct Post {
-    router_agent: Box<dyn Bridge<RouteAgent>>,
-    link: ComponentLink<Self>,
-    description: String,
-    file: String,          // FileData as string
-    task: Vec<ReaderTask>, // Task reads the file
-    error: bool,
-    props: Props,
-}
+    let update_description = {
+        let description = description.clone();
+        Callback::from(move |e: InputEvent| {
+            let input: HtmlInputElement = e.target_unchecked_into();
+            let value = input.value();
+            description.set(value);
+        })
+    };
 
-impl Component for Post {
-    type Message = Msg;
-    type Properties = Props;
+    let handle_file = {
+        let reader = reader.clone();
+        let file = file.clone();
+        let error = error.clone();
+        Callback::from(move |e: Event| {
+            let input: HtmlInputElement = e.target_unchecked_into();
+            let current_file = input.files().and_then(|files| files.get(0)).unwrap();
+            let file = file.clone();
+            let error = error.clone();
+            let set_file = {
+                Callback::from(
+                    move |result: Result<Vec<u8>, gloo_file::FileReadError>| match result {
+                        Ok(bytes) => {
+                            file.set(Some(base64::encode(bytes)));
+                        }
+                        Err(err) => {
+                            log!(&err.to_string());
+                            error.set(true);
+                            file.set(None);
+                        }
+                    },
+                )
+            };
+            *reader.borrow_mut() = Some(read_as_bytes(&File::from(current_file), move |result| {
+                set_file.emit(result)
+            }));
+        })
+    };
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self {
-            router_agent: RouteAgent::bridge(link.callback(|_| Msg::None)), //RouteAgent must take the same type but no new functionality
-            link,
-            description: String::new(),
-            file: String::new(),
-            task: Vec::new(),
-            error: false,
-            props,
-        }
-    }
+    let submit = {
+        let description = description.clone();
+        let file = file.clone();
+        let navigator = navigator.clone();
+        let callback_clone = props.callback.clone();
+        let user = props.user.clone();
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        match msg {
-            Msg::SetDescription(description) => {
-                self.description = description;
-            }
-            Msg::SetFile(file) => {
-                self.file = base64::encode(file.content);
-            }
-            // Use ReaderService to read file
-            Msg::LoadFile(file) => {
-                let callback = self.link.callback(Msg::SetFile);
-                let mut reader = ReaderService::new();
-                let task = reader.read_file(file, callback).unwrap();
-                self.task.push(task);
-            }
-            Msg::ResetFile => {
-                self.file = "".to_string();
-            }
-            // Create post and switch to home page
-            Msg::Submit => match &self.props.user {
-                Some(user) => {
-                    self.props.callback.emit((
-                        user.username.clone(),
-                        self.description.clone(),
-                        self.file.clone(),
-                    ));
-                    self.router_agent.send(ChangeRoute(Routes::Home.into()));
+        Callback::from(move |_e: SubmitEvent| match &user {
+            Some(user) => {
+                let description = description.clone();
+                let Some(file) = (*file).clone() else {
+                    log!("No file");
+                    return;
+                };
+                callback_clone.emit((user.username.clone(), (*description).clone(), file.clone()));
+                if let Some(navigator) = navigator.clone() {
+                    navigator.push(&Routes::Home);
                 }
-                None => {
-                    log("User not logged in".to_string());
-                }
-            },
-            Msg::None => {}
-        }
-        true
-    }
-
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props = props;
-        true
-    }
-
-    fn view(&self) -> Html {
-        let update_description = self
-            .link
-            .callback(|e: InputData| Msg::SetDescription(e.value));
-        let submit = self.link.callback(|e: FocusEvent| {
-            e.prevent_default();
-            Msg::Submit
-        });
-        let handle_file = self.link.callback(move |data: ChangeData| match data {
-            ChangeData::Files(files) => Msg::LoadFile(files.get(0).unwrap()),
-            _ => Msg::ResetFile,
-        });
-        if self.error {
-            html! {<p>{"Error"}</p>}
-        } else {
-            html! {
-                <div class="border border-dark create">
-                    <br/>
-                    <p>{"Create Post"}</p>
-                    <form onsubmit=submit>
-                        <fieldset>
-                            <label>{"Picture:"}</label>
-                            <img src="data:image/*;base64, ".to_string() + &self.file alt=""/><br/>
-                            <input type="file" accept="image/*" onchange=handle_file /><br/>
-                            <label>{"Description:"}</label>
-                            <input type="textarea"
-                                rows=4
-                                cols=4
-                                pattern="[A-Za-z0-9]@#$%^&*(){}/|:;-_<>.,=+!*"
-                                value=&self.description
-                                required=true
-                                oninput=update_description/><br/>
-                            <button type="submit" class="btn btn-primary">{"Post"}</button>
-                        </fieldset>
-                    </form>
-                </div>
             }
-        }
+            None => {
+                log!("User not logged in");
+            }
+        })
+    };
+
+    let image = format!(
+        "data:image/*;base64, {}",
+        file.as_deref().unwrap_or(&String::new())
+    );
+
+    html! {
+        <div class="border border-dark create">
+            <br/>
+            <p>{"Create Post"}</p>
+            <form onsubmit={submit}>
+                <fieldset>
+                    <label>{"Picture:"}</label>
+                    <img src={image} alt=""/><br/>
+                    <input type="file" accept="image/*" onchange={handle_file}/><br/>
+                    <label>{"Description:"}</label>
+                    <input type="textarea"
+                        rows=4
+                        cols=4
+                        pattern="[A-Za-z0-9]@#$%^&*(){}/|:;-_<>.,=+!*"
+                        value={(*description).clone()}
+                        required=true
+                        oninput={update_description}/><br/>
+                    <button type="submit" class="btn btn-primary">{"Post"}</button>
+                </fieldset>
+            </form>
+        </div>
     }
 }

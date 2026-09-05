@@ -1,19 +1,19 @@
 use yew_router::prelude::*;
 
-#[derive(Switch, Debug, Clone)]
+#[derive(Routable, Debug, Clone, PartialEq)]
 pub enum Routes {
-    #[to = "/account"]
+    #[at("/account")]
     Account,
-    #[to = "/edit"]
+    #[at("/edit")]
     Edit,
-    #[to = "/login"]
+    #[at("/login")]
     Login,
-    #[to = "/signup"]
+    #[at("/signup")]
     SignUp,
-    #[to = "/post"]
+    #[at("/post")]
     Post,
-    #[to = "/update"]
+    #[at("/update")]
     UpdateAccount,
-    #[to = "/"]
+    #[at("/")]
     Home,
 }

@@ -1,14 +1,44 @@
+use core::fmt;
+
 use bcrypt::{hash, verify};
+use gloo_console::log;
+use gloo_storage::{LocalStorage, Storage};
 use rand::random;
 use serde::{Deserialize, Serialize};
+use web_sys::console::log;
+use yew::html::ImplicitClone;
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, PartialEq)]
 pub struct User {
     pub id: u64,
     pub username: String,
     pub password: String,
 }
-#[derive(Clone, Deserialize, Serialize)]
+impl User {
+    pub fn default() -> User {
+        User {
+            id: 0,
+            username: "".to_string(),
+            password: "".to_string(),
+        }
+    }
+    pub fn clone_into(&self, dest: &mut Self) {
+        dest.id = self.id;
+        dest.username = self.username.clone();
+        dest.password = self.password.clone();
+    }
+
+    pub fn implicit_clone(&self) -> User {
+        let mut dest = User::default();
+        self.clone_into(&mut dest);
+        dest
+    }
+
+    pub fn into_prop_values(self) -> Vec<String> {
+        vec![self.id.to_string(), self.username, self.password]
+    }
+}
+#[derive(Clone, Deserialize, Serialize, PartialEq)]
 pub struct Rating {
     pub id: u64,
     pub post_id: u64,
@@ -16,7 +46,7 @@ pub struct Rating {
     pub stars: u8,
     pub comment: String,
 }
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, PartialEq)]
 pub struct Post {
     pub id: u64,
     pub author: String,
@@ -24,7 +54,43 @@ pub struct Post {
     pub description: String,
     pub image: String,
 }
-#[derive(Clone, Deserialize, Serialize)]
+
+impl Post {
+    pub fn default() -> Post {
+        Post {
+            id: 0,
+            author: "".to_string(),
+            ratings: vec![],
+            description: "".to_string(),
+            image: "".to_string(),
+        }
+    }
+    pub fn clone_into(&self, dest: &mut Self) {
+        dest.id = self.id;
+        dest.author = self.author.clone();
+        dest.ratings = self.ratings.clone();
+        dest.description = self.description.clone();
+        dest.image = self.image.clone();
+    }
+    pub fn implicit_clone(&self) -> Post {
+        let mut dest = Post::default();
+        dest.id = self.id;
+        dest.author = self.author.clone();
+        dest.ratings = self.ratings.clone();
+        dest.description = self.description.clone();
+        dest.image = self.image.clone();
+        dest
+    }
+    pub fn into_prop_values(self) -> Vec<String> {
+        vec![
+            self.id.to_string(),
+            self.author,
+            self.description,
+            self.image,
+        ]
+    }
+}
+#[derive(Clone, Deserialize, Serialize, PartialEq)]
 pub struct Data {
     pub users: Vec<User>,
     pub posts: Vec<Post>,
@@ -37,7 +103,30 @@ impl Default for Data {
         }
     }
 }
+impl ImplicitClone for Data {
+    fn implicit_clone(&self) -> Data {
+        let mut dest = Data::default();
+        dest.users = self.users.clone();
+        dest.posts = self.posts.clone();
+        dest
+    }
+}
+impl fmt::Display for Data {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // write the data to the formatter
+        write!(f, "users:{}", self.users.len())?;
+        write!(f, "posts:{}", self.posts.len())?;
+        Ok(())
+    }
+}
 impl Data {
+    pub fn new(value: String) -> Data {
+        let data: Data = serde_json::from_str(&value).unwrap();
+        Self {
+            users: data.users,
+            posts: data.posts,
+        }
+    }
     /// Create a new post
     pub fn create_post(&mut self, author: String, description: String, image: String) {
         let id = random::<u64>();
@@ -162,5 +251,16 @@ impl Data {
                 }
             }
         }
+    }
+    pub fn store(&self, key: &str) {
+        let string = serde_json::to_string(&self).unwrap();
+        log!(&string);
+        match LocalStorage::set(key, string) {
+            Ok(_) => {
+                log!("successful set".to_string());
+            }
+            Err(e) => log!(e.to_string()),
+        }
+        // let _ = LocalStorage::set(key, string);
     }
 }
