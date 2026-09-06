@@ -3,7 +3,7 @@ use db::*;
 use gloo_console::log;
 use gloo_file::callbacks::{read_as_bytes, FileReader};
 use gloo_file::File;
-use web_sys::HtmlInputElement;
+use web_sys::{HtmlInputElement, HtmlTextAreaElement};
 use yew::prelude::*;
 use yew_router::prelude::use_navigator;
 extern crate base64;
@@ -25,7 +25,7 @@ pub fn post(props: &Props) -> Html {
     let update_description = {
         let description = description.clone();
         Callback::from(move |e: InputEvent| {
-            let input: HtmlInputElement = e.target_unchecked_into();
+            let input: HtmlTextAreaElement = e.target_unchecked_into();
             let value = input.value();
             description.set(value);
         })
@@ -91,25 +91,26 @@ pub fn post(props: &Props) -> Html {
     );
 
     html! {
-        <div class="border border-dark create">
-            <br/>
-            <p>{"Create Post"}</p>
-            <form onsubmit={submit}>
-                <fieldset>
-                    <label>{"Picture:"}</label>
-                    <img src={image} alt=""/><br/>
-                    <input type="file" accept="image/*" onchange={handle_file}/><br/>
-                    <label>{"Description:"}</label>
-                    <input type="textarea"
-                        rows=4
-                        cols=4
-                        pattern="[A-Za-z0-9]@#$%^&*(){}/|:;-_<>.,=+!*"
-                        value={(*description).clone()}
-                        required=true
-                        oninput={update_description}/><br/>
-                    <button type="submit" class="btn btn-primary">{"Post"}</button>
-                </fieldset>
+        <section class="post create">
+            <div class="post-content">
+                <header class="post-header">
+                    <span class="post-eyebrow">{"CuteDogStash"}</span>
+                    <h1 class="post-author">{"Create a post"}</h1>
+                </header>
+                <p class="post-description">{"Share a favorite dog moment with the community."}</p>
+            </div>
+            <form class="rate-post" onsubmit={submit}>
+                <label>
+                    <span>{"Picture"}</span>
+                    <img class="post-image" src={image} alt="Preview of the selected post image"/>
+                    <input type="file" accept="image/*" onchange={handle_file}/>
+                </label>
+                <label>
+                    <span>{"Description"}</span>
+                    <textarea rows="4" value={(*description).clone()} required=true oninput={update_description}/>
+                </label>
+                <button type="submit" class="btn btn-primary">{"Publish post"}</button>
             </form>
-        </div>
+        </section>
     }
 }

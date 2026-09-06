@@ -44,26 +44,33 @@ pub fn login(props: &Props) -> Html {
     };
 
     html! {
-        <div class="border border-dark login">
-            <br/>
-            <p>{"Login"}</p>
-            <form onsubmit={onsubmit}>
-                <fieldset>
-                    <label>{"Username:"}</label>
-                    <input type="text" pattern="[A-Za-z0-9]{1,10}"
+        <main class="auth-page">
+            <section class="post auth-card">
+                <div class="post-content">
+                    <header class="post-header">
+                        <span class="post-eyebrow">{"Welcome back"}</span>
+                        <h1 class="post-author">{"Log in"}</h1>
+                    </header>
+                    <p class="post-description">{"Pick up where you left off with the CuteDogStash community."}</p>
+                </div>
+                <form class="rate-post" onsubmit={onsubmit}>
+                    <label>
+                        <span>{"Username"}</span>
+                        <input type="text" pattern="[A-Za-z0-9]{1,10}"
                         value={username.to_string()}
                         required=true
                         oninput={update_username}/>
-                    <br/>
-                    <label>{"Password:"}</label>
-                    <input type="password"
+                    </label>
+                    <label>
+                        <span>{"Password"}</span>
+                        <input type="password"
                         value={password.to_string()}
                         required=true
                         oninput={update_password}/>
-                    <br/>
-                    <button type="submit" class="btn btn-primary">{"Login"}</button>
-                </fieldset>
-            </form>
-        </div>
+                    </label>
+                    <button type="submit" class="btn btn-primary">{"Log in"}</button>
+                </form>
+            </section>
+        </main>
     }
 }
