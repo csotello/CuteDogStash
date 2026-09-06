@@ -14,6 +14,7 @@ pub struct Props {
 pub fn signup(props: &Props) -> Html {
     let username = use_state(String::new);
     let password = use_state(String::new);
+    let confirm_password = use_state(String::new);
     let props = props.clone();
     let navigator = use_navigator().unwrap();
     let error = use_state(|| false);
@@ -38,39 +39,60 @@ pub fn signup(props: &Props) -> Html {
             password.set(value);
         })
     };
+    let update_confirm_password = {
+        let confirm_password = confirm_password.clone();
+        Callback::from(move |e: InputEvent| {
+            let input: HtmlInputElement = e.target_unchecked_into();
+            let value = input.value();
+            confirm_password.set(value);
+        })
+    };
     let on_submit = {
         let username = username.clone();
         let password = password.clone();
+        let confirm_password = confirm_password.clone();
+        let error = error.clone();
         let navigator = navigator.clone();
         Callback::from(move |e: SubmitEvent| {
             e.prevent_default();
             let username = username.to_string();
             let password = password.to_string();
-            props.callback.emit((username, password));
-            navigator.push(&Routes::Home);
+            if password.to_string() != confirm_password.to_string() {
+                error.set(true);
+                navigator.push(&Routes::SignUp);
+            } else {
+                props.callback.emit((username, password));
+                navigator.push(&Routes::Home);
+            }
         })
     };
     html! {
-        <div class="border border-dark signup">
-            <br/>
-            <p>{"Signup"}</p>
-            {if *(error) {html!{<p>{"Invalid username or password\nUsername cannot contain special characters"}</p>}} else {html!{}}}
-            <form onsubmit={on_submit}>
-                <fieldset>
-                <label>{"Username:"}</label>
-                <input type="text" pattern="[A-Za-z0-9]{1,20}"
-                    value={username.to_string()} required=true
-                    oninput={update_username}
-                    oninvalid={update_error}/>
-                <br/>
-                <label>{"Password:"}</label>
-                <input type="password"
-                    value={password.to_string()} required=true
-                    oninput={update_password}/>
-                <br/>
-                <button type="submit" class="btn btn-primary">{"SignUp"}</button>
-                </fieldset>
-            </form>
-        </div>
+        <main class="auth-page">
+            <section class="post auth-card">
+                <div class="post-content">
+                    <header class="post-header">
+                        <span class="post-eyebrow">{"Join the pack"}</span>
+                        <h1 class="post-author">{"Create an account"}</h1>
+                    </header>
+                    <p class="post-description">{"Save posts, leave ratings, and share dog moments with the community."}</p>
+                </div>
+                {if *error { html! { <p class="rate-error" role="alert">{"Username or password is unacceptable"}</p> } } else { html! {} }}
+                <form class="rate-post" onsubmit={on_submit}>
+                    <label>
+                        <span>{"Username"}</span>
+                        <input type="text" pattern="[A-Za-z0-9]{1,20}" value={username.to_string()} required=true oninput={update_username} oninvalid={update_error}/>
+                    </label>
+                    <label>
+                        <span>{"Password"}</span>
+                        <input type="password" value={password.to_string()} required=true oninput={update_password}/>
+                    </label>
+                    <label>
+                        <span>{"Confirm Password"}</span>
+                        <input type="password" value={confirm_password.to_string()} required=true oninput={update_confirm_password}/>
+                    </label>
+                    <button type="submit" class="btn btn-primary">{"Create account"}</button>
+                </form>
+            </section>
+        </main>
     }
 }
