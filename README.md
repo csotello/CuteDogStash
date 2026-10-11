@@ -1,9 +1,11 @@
-# CS410: Rust Programming Course Project
-##### by Carlos Sotello
-
 ## CuteDogStash
+
+Do you remember the days growing up with a single family computer?
+Thinking back on a time where we may or may not have internet access made me think of having a social media site focused on the people using the shared computer and a topic that spans all ages: cute dogs. 
+
+
 CuteDogStash is an open source single-page application for storing photos of dogs. 
-Using [Yew](https://github.com/yewstack/yew) and [Trunk](https://github.com/thedodd/trunk), rust code will be bundled into HTML, JavaScript, and WebAssembly to run in browsers. Ideally this is a good first step toward providing a family centered site which can be used on a shared computer.  
+Using [Yew](https://github.com/yewstack/yew) and [Trunk](https://github.com/thedodd/trunk), rust code will be bundled into HTML, JavaScript, and WebAssembly to run in browsers. 
 
 Users will be able to post pictures and descriptions which will persist through local storage. The sites main page displays all of the stored posts with links to create an account and sign in. Once users have an account additional links will display allowing them to create posts, view posts by account, and update their account info. When logged in posts by the user's account will also display edit and delete buttons which will update or remove the post from the database and update local storage.  
 
@@ -41,7 +43,12 @@ fn change(&mut self, props: Self::Properties) -> ShouldRender {}
 fn view(&self) -> Html {}
 ```
 When a component first loads the create function is called and the initial values can be setup. Afterward, update handles messages which are used as signals for things like click events and change is used to update the component when its props change. The actual html corresponding to each component is defined in the view function. Using a Yew macro, rust and html can be used together to create reusable code compatible with data structures like vectors.   
-    
+
+Yew has added function components similar to React which provide a simpler implementation for components that don't need a high level of control over their lifetime. Simply declare the function as follows and return html to create the component. 
+```rust
+#[function_component(Home)]
+pub fn home(props: &Props) -> Html {
+```
 
 ## [LICENSE](LICENSE)
 MIT License
