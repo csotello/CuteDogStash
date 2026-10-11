@@ -190,7 +190,7 @@ impl Component for App {
                             _ => html! {<p>{"Login to access this page"}</p>},
                         }
                     }
-                    _ => html! {<p>{"Invalid route"}</p>},
+                    // _ => html! {<p>{"Invalid route"}</p>},
                 }
             })
         };
