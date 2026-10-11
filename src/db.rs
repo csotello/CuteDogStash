@@ -121,7 +121,7 @@ impl fmt::Display for Data {
 }
 impl Data {
     pub fn new(value: String) -> Data {
-        let data: Data = serde_json::from_str(&value).unwrap();
+        let data: Data = serde_json::from_str(&value).unwrap_or(Data::default());
         Self {
             users: data.users,
             posts: data.posts,
@@ -238,7 +238,7 @@ impl Data {
             if user.id == id {
                 author = user.username.clone();
                 user.username = username.clone();
-                user.password = hash(password.clone(), 4).unwrap();
+                user.password = hash(password.clone(), 4).unwrap_or("".to_string());
             }
         }
         for post in &mut self.posts {
@@ -253,7 +253,7 @@ impl Data {
         }
     }
     pub fn store(&self, key: &str) {
-        let string = serde_json::to_string(&self).unwrap();
+        let string = serde_json::to_string(&self).unwrap_or("".to_string());
         log!(&string);
         match LocalStorage::set(key, string) {
             Ok(_) => {
